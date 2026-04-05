@@ -4,183 +4,508 @@ function injectGlobals() {
   if (document.getElementById("lc-g")) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@400;500&family=Noto+Serif+SC:wght@600;700&display=swap";
+  link.href = "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@400;500&family=Noto+Serif+SC:wght@700&display=swap";
   document.head.appendChild(link);
   const s = document.createElement("style");
   s.id = "lc-g";
   s.textContent = `
     *{box-sizing:border-box;margin:0;padding:0}
-    body{background:#FDF3E7}
-    @keyframes pawWave{0%,100%{transform:rotate(-12deg) translateY(0)}50%{transform:rotate(12deg) translateY(-6px)}}
-    @keyframes pawFast{0%,100%{transform:rotate(-20deg) translateY(0)}50%{transform:rotate(20deg) translateY(-10px)}}
-    @keyframes catIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-    @keyframes catBounce{0%,100%{transform:translateY(0)}40%{transform:translateY(-14px)}70%{transform:translateY(-8px)}}
-    @keyframes catHappy{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-12px) rotate(-4deg)}75%{transform:translateY(-12px) rotate(4deg)}}
-    @keyframes shimmerGold{0%{background-position:-200% center}100%{background-position:200% center}}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes lockIn{0%{transform:scale(1.5);color:#C8112A}100%{transform:scale(1)}}
-    @keyframes bellSwing{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(14deg)}}
-    @keyframes glowRed{0%,100%{box-shadow:0 4px 18px rgba(200,17,42,.35)}50%{box-shadow:0 4px 32px rgba(200,17,42,.65)}}
-    @keyframes ticketIn{from{opacity:0;transform:scale(.92) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
-    @keyframes reelFlash{0%,100%{opacity:1}50%{opacity:.5}}
-    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+    @keyframes pawWave{0%,100%{transform:rotate(-14deg) translateY(0)}50%{transform:rotate(14deg) translateY(-8px)}}
+    @keyframes catIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+    @keyframes catBounce{0%,100%{transform:translateY(0)}45%{transform:translateY(-16px)}75%{transform:translateY(-8px)}}
+    @keyframes catHappy{0%,100%{transform:rotate(0) translateY(0)}30%{transform:rotate(-5deg) translateY(-12px)}70%{transform:rotate(5deg) translateY(-12px)}}
+    @keyframes shimmerGold{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes lockIn{0%{transform:scale(1.7)}60%{transform:scale(.92)}100%{transform:scale(1)}}
+    @keyframes bellSwing{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(15deg)}}
+    @keyframes ticketIn{from{opacity:0;transform:scale(.88) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    @keyframes reelSpin{0%,100%{opacity:1}50%{opacity:.35}}
+    @keyframes confettiFall{0%{transform:translateY(-30px) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(900deg);opacity:0}}
+    @keyframes glowBtn{0%,100%{box-shadow:0 4px 18px rgba(0,0,0,.25)}50%{box-shadow:0 6px 32px rgba(0,0,0,.4)}}
+    @keyframes winPop{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
   `;
   document.head.appendChild(s);
 }
 
-const TW = {1:85,2:72,3:91,4:88,5:76,6:95,7:82,8:103,9:79,10:88,11:91,12:86,13:74,14:93,15:88,16:82,17:97,18:85,19:78,20:91,21:88,22:95,23:103,24:86,25:79,26:91,27:88,28:76,29:95,30:82,31:88,32:91,33:85,34:78,35:93,36:88,37:82,38:97,39:85,40:78,41:91,42:88,43:76,44:93,45:88,46:82,47:97,48:85,49:78};
-const DW = [{0:8,1:11,2:10,3:9,4:10,5:11,6:10,7:12,8:13,9:11},{0:10,1:10,2:11,3:10,4:9,5:12,6:11,7:10,8:11,9:10},{0:9,1:11,2:10,3:11,4:10,5:10,6:12,7:11,8:10,9:10},{0:11,1:10,2:10,3:9,4:11,5:10,6:10,7:12,8:11,9:10}];
-function wPick(w){const e=Object.entries(w);const tot=e.reduce((s,[,v])=>s+v,0);let r=Math.random()*tot;for(const [k,v] of e){r-=v;if(r<=0)return +k;}return +e[e.length-1][0];}
+// ── THEMES ──────────────────────────────────────────
+const TH = {
+  toto: {
+    p:"#C8112A", p2:"#880C1E", gold:"#D4A017",
+    bg:"linear-gradient(170deg,#FDF3E7 0%,#FAE8D0 55%,#F2DCC0 100%)",
+    card:"#FFFDF5", text:"#3D1515", muted:"rgba(100,40,10,.52)",
+    border:"rgba(212,160,23,.3)", reel:"linear-gradient(180deg,#78101E,#3E0008,#78101E)",
+    collar:"#C8112A", label:"TOTO", zh:"六合彩", toggleBg:"rgba(200,17,42,.1)",
+  },
+  "4d": {
+    p:"#1A6B3C", p2:"#0D4A28", gold:"#D4A017",
+    bg:"linear-gradient(170deg,#EEF8F1 0%,#DFF0E5 55%,#D0E8D8 100%)",
+    card:"#F4FFF7", text:"#0A2B18", muted:"rgba(10,50,25,.52)",
+    border:"rgba(26,107,60,.24)", reel:"linear-gradient(180deg,#0A3D20,#052410,#0A3D20)",
+    collar:"#1A6B3C", label:"4D", zh:"四位数", toggleBg:"rgba(26,107,60,.1)",
+  },
+};
+
+// ── PROBABILITY ENGINE ───────────────────────────────
+const TW={1:85,2:72,3:91,4:88,5:76,6:95,7:82,8:103,9:79,10:88,11:91,12:86,13:74,14:93,15:88,16:82,17:97,18:85,19:78,20:91,21:88,22:95,23:103,24:86,25:79,26:91,27:88,28:76,29:95,30:82,31:88,32:91,33:85,34:78,35:93,36:88,37:82,38:97,39:85,40:78,41:91,42:88,43:76,44:93,45:88,46:82,47:97,48:85,49:78};
+const DW=[{0:8,1:11,2:10,3:9,4:10,5:11,6:10,7:12,8:13,9:11},{0:10,1:10,2:11,3:10,4:9,5:12,6:11,7:10,8:11,9:10},{0:9,1:11,2:10,3:11,4:10,5:10,6:12,7:11,8:10,9:10},{0:11,1:10,2:10,3:9,4:11,5:10,6:10,7:12,8:11,9:10}];
+function wPick(w){const e=Object.entries(w),tot=e.reduce((s,[,v])=>s+v,0);let r=Math.random()*tot;for(const[k,v]of e){r-=v;if(r<=0)return+k;}return+e[e.length-1][0];}
 function genTOTO(){const s=new Set();while(s.size<6)s.add(wPick(TW));return[...s].sort((a,b)=>a-b);}
 function gen4D(){return DW.map(w=>wPick(w));}
 
-function Cat({ phase, onSpin }) {
-  const spinning = phase==="spinning", done=phase==="done", idle=phase==="idle";
-  return (
-    <div onClick={idle?onSpin:undefined} style={{display:"flex",justifyContent:"center",cursor:idle?"pointer":"default",userSelect:"none"}}>
-      <svg width="240" height="290" viewBox="0 0 240 290" style={{animation:spinning?"catBounce .4s ease-in-out infinite":done?"catHappy .55s ease-in-out 4":"catIdle 3s ease-in-out infinite",filter:"drop-shadow(0 12px 24px rgba(200,17,42,.22)) drop-shadow(0 4px 8px rgba(0,0,0,.1))"}}>
-        <ellipse cx="120" cy="274" rx="82" ry="12" fill="#B8001E" opacity=".25"/>
-        <rect x="42" y="258" width="156" height="18" rx="5" fill="#C8112A"/>
-        <rect x="42" y="258" width="156" height="5" rx="3" fill="#E8314A"/>
-        <circle cx="46" cy="276" r="5" fill="#D4A017"/><line x1="46" y1="271" x2="46" y2="258" stroke="#D4A017" strokeWidth="2"/>
-        <circle cx="194" cy="276" r="5" fill="#D4A017"/><line x1="194" y1="271" x2="194" y2="258" stroke="#D4A017" strokeWidth="2"/>
-        <ellipse cx="120" cy="210" rx="76" ry="56" fill="#FEFAF2" stroke="#E8D8B8" strokeWidth="1.5"/>
-        <ellipse cx="168" cy="220" rx="28" ry="22" fill="#C47B2A" opacity=".55"/>
-        <ellipse cx="72" cy="230" rx="18" ry="16" fill="#2A1A0A" opacity=".35"/>
-        <ellipse cx="82" cy="222" rx="30" ry="38" fill="#F5C842" stroke="#C8960C" strokeWidth="2" transform="rotate(-8,82,222)"/>
-        <ellipse cx="82" cy="222" rx="25" ry="33" fill="#F5C842" stroke="#D4A017" strokeWidth="1" transform="rotate(-8,82,222)"/>
-        <text x="74" y="212" textAnchor="middle" fontSize="9" fill="#7A5C00" fontWeight="bold" fontFamily="Noto Serif SC,serif" transform="rotate(-8,82,222)">招福</text>
-        <text x="74" y="224" textAnchor="middle" fontSize="9" fill="#7A5C00" fontWeight="bold" fontFamily="Noto Serif SC,serif" transform="rotate(-8,82,222)">大開</text>
-        <text x="74" y="236" textAnchor="middle" fontSize="9" fill="#7A5C00" fontWeight="bold" fontFamily="Noto Serif SC,serif" transform="rotate(-8,82,222)">運</text>
-        <ellipse cx="72" cy="240" rx="20" ry="14" fill="#FEFAF2" stroke="#E8D8B8" strokeWidth="1.5" transform="rotate(20,72,240)"/>
-        <text x="148" y="235" fontSize="14" fill="#C8112A" opacity=".45" fontFamily="sans-serif">鶴</text>
-        <circle cx="140" cy="250" r="3" fill="#C8112A" opacity=".3"/>
-        <circle cx="148" cy="246" r="3" fill="#C8112A" opacity=".3"/>
-        <circle cx="155" cy="252" r="3" fill="#C8112A" opacity=".3"/>
-        <g style={{animation:spinning?"pawFast .22s ease-in-out infinite":"pawWave 1.8s ease-in-out infinite",transformOrigin:"178px 168px",cursor:idle?"pointer":"default"}}>
-          <ellipse cx="175" cy="185" rx="19" ry="36" fill="#FEFAF2" stroke="#E8D8B8" strokeWidth="1.5" transform="rotate(10,175,185)"/>
-          <ellipse cx="183" cy="155" rx="17" ry="14" fill="#FEFAF2" stroke="#E8D8B8" strokeWidth="1.5" transform="rotate(10,183,155)"/>
-          <line x1="177" y1="146" x2="175" y2="140" stroke="#C8112A" strokeWidth="1.5" strokeLinecap="round" opacity=".7"/>
-          <line x1="183" y1="144" x2="183" y2="138" stroke="#C8112A" strokeWidth="1.5" strokeLinecap="round" opacity=".7"/>
-          <line x1="189" y1="147" x2="191" y2="142" stroke="#C8112A" strokeWidth="1.5" strokeLinecap="round" opacity=".7"/>
-          <text x="183" y="159" textAnchor="middle" fontSize="7" fill="#C8112A" fontFamily="Noto Serif SC,serif" opacity=".8" transform="rotate(10,183,155)">開運</text>
-          <ellipse cx="178" cy="195" rx="10" ry="8" fill="#C47B2A" opacity=".4" transform="rotate(10,175,185)"/>
+// ── LATEST RESULTS (scraper updates these) ───────────
+const LATEST = {
+  toto:{ date:"03 Apr 2026 (Thu)", draw:4120, numbers:[4,12,23,31,38,45], additional:7, jackpot:"$2,100,000" },
+  "4d":{ date:"02 Apr 2026 (Wed)", draw:5312, first:"4829", second:"1073", third:"6651",
+    special:["0234","1892","3047","4521","5683","6714","7089","8342","9456","0871"],
+    consolation:["1234","2345","3456","4567","5678","6789","7890","8901","9012","0123"] },
+};
+
+// ── CONFETTI ─────────────────────────────────────────
+function triggerConfetti() {
+  const colors=["#C8112A","#D4A017","#F5C842","#1A6B3C","#FF90A8","#FFFFFF","#FFD700"];
+  for(let i=0;i<90;i++){
+    const el=document.createElement("div");
+    const sz=Math.random()*10+5;
+    const isCircle=Math.random()>.5;
+    el.style.cssText=`position:fixed;top:-40px;left:${Math.random()*100}vw;width:${sz}px;height:${sz}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${isCircle?"50%":"3px"};animation:confettiFall ${1.8+Math.random()*2.2}s ease-in ${Math.random()*.9}s forwards;pointer-events:none;z-index:9998;`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),5000);
+  }
+}
+
+// ── SHARE / CANVAS ────────────────────────────────────
+function buildShareImage(numbers, mode, theme, cb) {
+  const c=document.createElement("canvas");
+  c.width=1080;c.height=1080;
+  const ctx=c.getContext("2d");
+  const g=ctx.createLinearGradient(0,0,1080,1080);
+  g.addColorStop(0, mode==="toto"?"#FDF3E7":"#EEF8F1");
+  g.addColorStop(1, mode==="toto"?"#F2DCC0":"#D0E8D8");
+  ctx.fillStyle=g; ctx.fillRect(0,0,1080,1080);
+  ctx.strokeStyle=mode==="toto"?"#C8112A":"#1A6B3C"; ctx.lineWidth=28; ctx.strokeRect(14,14,1052,1052);
+  ctx.strokeStyle="#D4A017"; ctx.lineWidth=7; ctx.strokeRect(28,28,1024,1024);
+  ctx.fillStyle=mode==="toto"?"#C8112A":"#1A6B3C";
+  ctx.font="bold 68px serif"; ctx.textAlign="center";
+  ctx.fillText("招财猫  Lucky Cat",540,130);
+  ctx.fillStyle="#D4A017"; ctx.font="500 38px monospace";
+  ctx.fillText(mode==="toto"?"TOTO — 6 LUCKY NUMBERS":"4D — LUCKY NUMBER",540,210);
+  if(mode==="4d"){
+    ctx.fillStyle=mode==="toto"?"#C8112A":"#1A6B3C";
+    ctx.font="bold 160px monospace"; ctx.textAlign="center";
+    ctx.fillText(numbers.join(""),540,480);
+  } else {
+    ctx.font="bold 100px monospace";
+    const row=numbers.map(n=>String(n).padStart(2,"0")).join("   ");
+    ctx.fillStyle="#D4A017"; ctx.fillText(row,540,480);
+  }
+  ctx.fillStyle="rgba(0,0,0,.35)"; ctx.font="28px monospace";
+  ctx.fillText("lucky-cat-ten.vercel.app",540,640);
+  ctx.font="22px monospace";
+  ctx.fillText("For entertainment only · NCPG 1800-6-668-668",540,690);
+  ctx.fillStyle=mode==="toto"?"rgba(200,17,42,.12)":"rgba(26,107,60,.12)";
+  for(let x=0;x<1080;x+=36)for(let y=0;y<1080;y+=36){ctx.beginPath();ctx.arc(x,y,2,0,Math.PI*2);ctx.fill();}
+  c.toBlob(cb,"image/png");
+}
+
+async function shareResult(numbers, mode, theme) {
+  buildShareImage(numbers, mode, theme, async(blob)=>{
+    const file=new File([blob],"lucky-cat.png",{type:"image/png"});
+    const text=`🐱 My Lucky Cat ${mode.toUpperCase()}: ${mode==="4d"?numbers.join(""):numbers.join(", ")} — lucky-cat-ten.vercel.app`;
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+      try{await navigator.share({files:[file],title:"My Lucky Numbers!",text});}
+      catch(e){downloadBlob(blob);}
+    } else { downloadBlob(blob); }
+  });
+}
+function downloadBlob(blob){const u=URL.createObjectURL(blob);const a=document.createElement("a");a.href=u;a.download="lucky-cat.png";a.click();setTimeout(()=>URL.revokeObjectURL(u),3000);}
+
+// ── SHARE BUTTONS ─────────────────────────────────────
+function ShareButtons({ numbers, mode, theme }) {
+  const txt=encodeURIComponent(`🐱 My Lucky Cat ${mode.toUpperCase()}: ${mode==="4d"?numbers.join(""):numbers.join(", ")} — lucky-cat-ten.vercel.app`);
+  const t=theme;
+  return(
+    <div style={{display:"flex",gap:8,justifyContent:"center",marginTop:12,flexWrap:"wrap"}}>
+      {[
+        {label:"WhatsApp",color:"#25D366",icon:"💬",url:`https://wa.me/?text=${txt}`},
+        {label:"Telegram",color:"#0088CC",icon:"✈️",url:`https://t.me/share/url?url=lucky-cat-ten.vercel.app&text=${txt}`},
+        {label:"Save & Share",color:t.p,icon:"📤",fn:()=>shareResult(numbers,mode,t)},
+      ].map(b=>(
+        <button key={b.label} onClick={()=>b.fn?b.fn():window.open(b.url,"_blank")}
+          style={{display:"flex",alignItems:"center",gap:5,padding:"8px 15px",background:b.color,border:"none",borderRadius:50,color:"white",fontFamily:"'DM Mono',monospace",fontSize:11,cursor:"pointer",letterSpacing:.5,fontWeight:"500"}}>
+          <span style={{fontSize:13}}>{b.icon}</span>{b.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ── CAT SVG (all round, no pointy shapes) ────────────
+function Cat({ phase, theme }) {
+  const spinning=phase==="spinning", done=phase==="done";
+  const t=theme;
+  return(
+    <div style={{display:"flex",justifyContent:"center",userSelect:"none"}}>
+      <svg width="240" height="276" viewBox="0 0 240 276" style={{
+        animation:spinning?"catBounce .42s ease-in-out infinite":done?"catHappy .55s ease-in-out 4":"catIdle 3.2s ease-in-out infinite",
+        filter:`drop-shadow(0 12px 22px ${t.p}38) drop-shadow(0 4px 8px rgba(0,0,0,.09))`,
+        transition:"filter .5s",
+      }}>
+        {/* Red cushion */}
+        <rect x="34" y="252" width="172" height="22" rx="11" fill={t.p}/>
+        <rect x="34" y="252" width="172" height="7" rx="7" fill="rgba(255,255,255,.22)"/>
+        {/* Tassel circles */}
+        {[42,198].map((x,i)=>(
+          <g key={i}>
+            <circle cx={x} cy="252" r="7" fill={t.gold}/>
+            <circle cx={x} cy="265" r="5" fill={t.gold} opacity=".7"/>
+            <circle cx={x} cy="275" r="4" fill={t.gold} opacity=".5"/>
+          </g>
+        ))}
+        {/* Body */}
+        <ellipse cx="120" cy="208" rx="80" ry="52" fill="#FEFAF2" stroke="#EDD8B0" strokeWidth="1.5"/>
+        <ellipse cx="168" cy="215" rx="32" ry="25" fill="#C47B2A" opacity=".5"/>
+        <ellipse cx="70" cy="222" rx="22" ry="18" fill="#2A1A0A" opacity=".28"/>
+        {/* Koban */}
+        <ellipse cx="84" cy="216" rx="28" ry="36" fill={t.gold} stroke="#C8960C" strokeWidth="1.8" transform="rotate(-7,84,216)"/>
+        <ellipse cx="84" cy="216" rx="22" ry="29" fill="#F5C842" transform="rotate(-7,84,216)"/>
+        {["招福","大開","運"].map((ch,i)=>(<text key={i} x="76" y={206+i*12} textAnchor="middle" fontSize="8.5" fill="#6A4C00" fontWeight="bold" fontFamily="Noto Serif SC,serif" transform="rotate(-7,84,216)">{ch}</text>))}
+        {/* Left arm */}
+        <ellipse cx="70" cy="234" rx="19" ry="13" fill="#FEFAF2" stroke="#EDD8B0" strokeWidth="1.5" transform="rotate(18,70,234)"/>
+        <circle cx="60" cy="242" r="9" fill="#FEFAF2" stroke="#EDD8B0" strokeWidth="1.5"/>
+        <circle cx="60" cy="242" r="6" fill="#FFCCD8" opacity=".7"/>
+        {/* Right arm — always waving, no click on cat */}
+        <g style={{animation:"pawWave 1.9s ease-in-out infinite",transformOrigin:"174px 172px"}}>
+          <ellipse cx="174" cy="186" rx="18" ry="34" fill="#FEFAF2" stroke="#EDD8B0" strokeWidth="1.5" transform="rotate(8,174,186)"/>
+          <circle cx="182" cy="155" r="16" fill="#FEFAF2" stroke="#EDD8B0" strokeWidth="1.5"/>
+          <circle cx="182" cy="155" r="11" fill="#FFCCD8" opacity=".65"/>
+          {/* Toe circles */}
+          {[[175,144],[183,141],[191,145]].map(([x,y],i)=>(<circle key={i} cx={x} cy={y} r="5" fill="#FFCCD8" opacity=".9"/>))}
+          <text x="182" y="159" textAnchor="middle" fontSize="7" fill={t.p} fontFamily="Noto Serif SC,serif" opacity=".85" transform="rotate(8,182,155)">開運</text>
+          <ellipse cx="177" cy="196" rx="9" ry="7" fill="#C47B2A" opacity=".38" transform="rotate(8,174,186)"/>
         </g>
-        <circle cx="120" cy="130" r="68" fill="#FEFAF2" stroke="#E8D8B8" strokeWidth="1.5"/>
-        <ellipse cx="152" cy="108" rx="30" ry="26" fill="#C47B2A" opacity=".5"/>
-        <ellipse cx="90" cy="105" rx="22" ry="18" fill="#2A1A0A" opacity=".28"/>
-        <polygon points="58,72 44,36 84,60" fill="#FEFAF2" stroke="#E8D8B8" strokeWidth="1.5"/>
-        <polygon points="182,72 196,36 156,60" fill="#FEFAF2" stroke="#E8D8B8" strokeWidth="1.5"/>
-        <polygon points="58,70 46,40 80,62" fill="#2A1A0A" opacity=".55"/>
-        <polygon points="182,70 194,40 160,62" fill="#C47B2A" opacity=".75"/>
-        <polygon points="60,68 52,48 76,63" fill="#FFBDCA" opacity=".8"/>
-        <polygon points="180,68 188,48 164,63" fill="#FFBDCA" opacity=".8"/>
-        <circle cx="120" cy="94" r="5" fill="#C8112A" opacity=".6"/>
-        <path d="M94 122 Q104 114 114 122" fill="none" stroke="#2A1A0A" strokeWidth="3" strokeLinecap="round"/>
-        <path d="M126 122 Q136 114 146 122" fill="none" stroke="#2A1A0A" strokeWidth="3" strokeLinecap="round"/>
-        <circle cx="99" cy="119" r="1.5" fill="#2A1A0A" opacity=".6"/>
-        <circle cx="141" cy="119" r="1.5" fill="#2A1A0A" opacity=".6"/>
-        <polygon points="120,136 116,131 124,131" fill="#FFBDCA"/>
-        <path d="M113 138 Q120 144 127 138" fill="none" stroke="#8B4040" strokeWidth="1.5" strokeLinecap="round"/>
-        <line x1="56" y1="132" x2="106" y2="136" stroke="#bbb" strokeWidth="1" opacity=".7"/>
-        <line x1="56" y1="138" x2="106" y2="138" stroke="#bbb" strokeWidth="1" opacity=".7"/>
-        <line x1="60" y1="144" x2="108" y2="141" stroke="#bbb" strokeWidth="1" opacity=".7"/>
-        <line x1="184" y1="132" x2="134" y2="136" stroke="#bbb" strokeWidth="1" opacity=".7"/>
-        <line x1="184" y1="138" x2="134" y2="138" stroke="#bbb" strokeWidth="1" opacity=".7"/>
-        <line x1="180" y1="144" x2="132" y2="141" stroke="#bbb" strokeWidth="1" opacity=".7"/>
-        <path d="M65 168 Q120 184 175 168" fill="none" stroke="#C8112A" strokeWidth="10" strokeLinecap="round"/>
-        <path d="M75 171 Q120 186 165 171" fill="none" stroke="#E8314A" strokeWidth="1" strokeLinecap="round" opacity=".6"/>
-        {[85,100,120,140,155].map((x,i)=>(<circle key={i} cx={x} cy={i%2===0?174:176} r="2.5" fill="white" opacity=".7"/>))}
-        <g style={{animation:"bellSwing 2.2s ease-in-out infinite",transformOrigin:"120px 182px"}}>
-          <ellipse cx="120" cy="186" rx="10" ry="12" fill="#D4A017" stroke="#B8890A" strokeWidth="1.5"/>
-          <ellipse cx="120" cy="186" rx="7" ry="9" fill="#F5C842"/>
-          <line x1="120" y1="194" x2="120" y2="197" stroke="#B8890A" strokeWidth="2"/>
-          <circle cx="120" cy="186" r="3" fill="#B8890A" opacity=".5"/>
+        {/* ROUND ears — circles, head covers bottom half */}
+        <circle cx="74" cy="84" r="32" fill="#FEFAF2" stroke="#EDD8B0" strokeWidth="1.5"/>
+        <circle cx="166" cy="84" r="32" fill="#FEFAF2" stroke="#EDD8B0" strokeWidth="1.5"/>
+        <circle cx="74" cy="80" r="21" fill="#FFCCD8" opacity=".75"/>
+        <circle cx="166" cy="80" r="21" fill="#FFCCD8" opacity=".75"/>
+        <circle cx="74" cy="76" r="12" fill="#C47B2A" opacity=".52"/>
+        <circle cx="166" cy="76" r="12" fill="#2A1A0A" opacity=".32"/>
+        {/* Head covers ears' bottom — drawn after so ears peek out as round bumps */}
+        <circle cx="120" cy="138" r="70" fill="#FEFAF2" stroke="#EDD8B0" strokeWidth="1.5"/>
+        {/* Patches */}
+        <ellipse cx="150" cy="116" rx="34" ry="28" fill="#C47B2A" opacity=".45"/>
+        <ellipse cx="88" cy="112" rx="26" ry="21" fill="#2A1A0A" opacity=".24"/>
+        {/* Forehead dot */}
+        <circle cx="120" cy="100" r="6.5" fill={t.p} opacity=".52"/>
+        {/* Happy closed eyes (crescents) */}
+        <path d="M94 130 Q107 118 120 130" fill="none" stroke="#2A1A0A" strokeWidth="3.2" strokeLinecap="round"/>
+        <path d="M120 130 Q133 118 146 130" fill="none" stroke="#2A1A0A" strokeWidth="3.2" strokeLinecap="round"/>
+        {/* Nose */}
+        <circle cx="120" cy="144" r="5.5" fill="#FFCCD8"/>
+        {/* Mouth */}
+        <path d="M112 150 Q120 158 128 150" fill="none" stroke="#904040" strokeWidth="1.8" strokeLinecap="round"/>
+        {/* Whiskers */}
+        {[[50,138,104,143],[50,146,104,146]].map(([x1,y1,x2,y2],i)=>(<line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#ccc" strokeWidth=".9" opacity=".72"/>))}
+        {[[190,138,136,143],[190,146,136,146]].map(([x1,y1,x2,y2],i)=>(<line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#ccc" strokeWidth=".9" opacity=".72"/>))}
+        {/* Collar */}
+        <path d="M60 172 Q120 192 180 172" fill="none" stroke={t.collar} strokeWidth="11" strokeLinecap="round"/>
+        <path d="M64 175 Q120 194 176 175" fill="none" stroke="rgba(255,255,255,.2)" strokeWidth="3" strokeLinecap="round"/>
+        {[76,93,120,147,164].map((x,i)=>(<circle key={i} cx={x} cy={i%2===0?176:179} r="2.5" fill="white" opacity=".75"/>))}
+        {/* Bell */}
+        <g style={{animation:"bellSwing 2.1s ease-in-out infinite",transformOrigin:"120px 190px"}}>
+          <circle cx="120" cy="195" r="13" fill={t.gold} stroke="#A07810" strokeWidth="1.5"/>
+          <circle cx="120" cy="195" r="9" fill="#F5C842"/>
+          <circle cx="120" cy="195" r="3.5" fill="#A07810" opacity=".55"/>
         </g>
-        {idle&&(<g style={{animation:"float 2s ease-in-out infinite"}}><rect x="158" y="96" width="52" height="20" rx="10" fill="#C8112A" opacity=".9"/><text x="184" y="111" textAnchor="middle" fontSize="10" fill="white" fontFamily="DM Mono,monospace" fontWeight="500">TAP! ✨</text></g>)}
       </svg>
     </div>
   );
 }
 
-function Reel({ value, spinning, locked, is4D }) {
+// ── REEL ─────────────────────────────────────────────
+function Reel({ value, spinning, locked, is4D, theme }) {
   const [disp,setDisp]=useState("?");
   const iv=useRef(null);
   useEffect(()=>{
-    if(spinning&&!locked){iv.current=setInterval(()=>{setDisp(is4D?String(Math.floor(Math.random()*10)):String(Math.floor(Math.random()*49+1)).padStart(2,"0"));},72);}
+    if(spinning&&!locked){iv.current=setInterval(()=>setDisp(is4D?String(Math.floor(Math.random()*10)):String(Math.floor(Math.random()*49+1)).padStart(2,"0")),68);}
     else{clearInterval(iv.current);if(value!=null)setDisp(is4D?String(value):String(value).padStart(2,"0"));else if(!spinning)setDisp("?");}
     return()=>clearInterval(iv.current);
   },[spinning,locked,value,is4D]);
   return(
-    <div style={{width:is4D?64:60,height:72,background:locked?"linear-gradient(180deg,#FFF8E8,#FFF3D0)":"linear-gradient(180deg,#7A1020,#4A0010,#7A1020)",border:`2.5px solid ${locked?"#D4A017":"#C8112A"}`,borderRadius:12,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:locked?"0 0 16px rgba(212,160,23,.5),inset 0 1px 0 rgba(255,255,255,.5)":"inset 0 2px 8px rgba(0,0,0,.4)",transition:"all .35s",position:"relative",overflow:"hidden"}}>
-      <div style={{position:"absolute",top:0,left:0,right:0,height:1,background:locked?"rgba(255,255,255,.8)":"rgba(255,255,255,.08)"}}/>
-      <span style={{fontFamily:"'DM Mono',monospace",fontSize:is4D?30:22,fontWeight:"500",color:locked?"#8B5A00":spinning?"#FFB0B0":"rgba(255,200,200,.3)",animation:locked?"lockIn .45s ease-out forwards":spinning?"reelFlash .18s ease-in-out infinite":"none",letterSpacing:is4D?0:-1}}>{disp}</span>
+    <div style={{width:is4D?66:62,height:74,background:locked?"linear-gradient(180deg,#FFF9E8,#FFF3CC)":theme.reel,border:`2.5px solid ${locked?theme.gold:theme.p}`,borderRadius:14,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:locked?`0 0 18px ${theme.gold}70,inset 0 1px 0 rgba(255,255,255,.5)`:"inset 0 3px 10px rgba(0,0,0,.45)",transition:"all .38s"}}>
+      <span style={{fontFamily:"'DM Mono',monospace",fontSize:is4D?31:23,fontWeight:"500",color:locked?"#7A5000":spinning?"rgba(255,180,180,.9)":"rgba(255,180,180,.28)",animation:locked?"lockIn .42s cubic-bezier(.34,1.56,.64,1) forwards":spinning?"reelSpin .18s ease-in-out infinite":"none",letterSpacing:is4D?0:-1,display:"block"}}>{disp}</span>
     </div>
   );
 }
 
-function Ticket({ numbers, mode }) {
+// ── TICKET ───────────────────────────────────────────
+function Ticket({ numbers, mode, theme }) {
+  const t=theme;
   return(
-    <div style={{animation:"ticketIn .52s cubic-bezier(.34,1.56,.64,1) forwards",background:"linear-gradient(135deg,#FFFDF5,#FFF8E0)",border:"2px solid #D4A017",borderRadius:18,padding:"18px 22px 14px",marginTop:18,boxShadow:"0 8px 28px rgba(212,160,23,.25),0 2px 8px rgba(200,17,42,.12)",position:"relative",overflow:"hidden"}}>
-      <div style={{position:"absolute",top:0,left:0,right:0,height:4,background:"linear-gradient(90deg,#C8112A,#D4A017,#C8112A)"}}/>
-      <div style={{position:"absolute",top:4,left:16,right:16,height:1,backgroundImage:"repeating-linear-gradient(90deg,transparent,transparent 5px,rgba(212,160,23,.4) 5px,rgba(212,160,23,.4) 9px)"}}/>
-      <div style={{textAlign:"center",marginBottom:14,marginTop:6}}>
-        <div style={{fontFamily:"'Noto Serif SC',serif",fontSize:11,color:"#C8112A",letterSpacing:4}}>招财猫 LUCKY CAT</div>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:13,color:"#8B5A00",marginTop:3,letterSpacing:1.5}}>{mode==="4d"?"4D LUCKY NUMBER":"TOTO · 6 NUMBERS"}</div>
+    <div style={{animation:"ticketIn .52s cubic-bezier(.34,1.56,.64,1) forwards",background:t.card,border:`2px solid ${t.gold}`,borderRadius:18,padding:"16px 20px 12px",marginTop:14,boxShadow:`0 8px 28px ${t.gold}38`,position:"relative",overflow:"hidden"}}>
+      <div style={{position:"absolute",top:0,left:0,right:0,height:4,background:`linear-gradient(90deg,${t.p},${t.gold},${t.p})`}}/>
+      <div style={{position:"absolute",top:4,left:14,right:14,height:1,backgroundImage:`repeating-linear-gradient(90deg,transparent,transparent 5px,${t.gold}44 5px,${t.gold}44 9px)`}}/>
+      <div style={{textAlign:"center",margin:"8px 0 12px"}}>
+        <div style={{fontFamily:"'Noto Serif SC',serif",fontSize:10,color:t.p,letterSpacing:4}}>招财猫 LUCKY CAT</div>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:12,color:"#8B5A00",marginTop:2,letterSpacing:1.5}}>{mode==="4d"?"4D LUCKY NUMBER":"TOTO · 6 NUMBERS"}</div>
       </div>
-      {mode==="4d"?(<div style={{textAlign:"center"}}><span style={{fontFamily:"'DM Mono',monospace",fontSize:52,fontWeight:"500",color:"#C8112A",letterSpacing:10}}>{numbers.join("")}</span></div>):(<div style={{display:"flex",gap:8,justifyContent:"center",flexWrap:"wrap"}}>{numbers.map((n,i)=>(<div key={i} style={{width:46,height:46,borderRadius:"50%",background:"radial-gradient(circle at 35% 30%,#F5C842,#B8890A)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'DM Mono',monospace",fontSize:15,fontWeight:"500",color:"#3D2000",boxShadow:"0 4px 12px rgba(184,137,10,.4)"}}>{String(n).padStart(2,"0")}</div>))}</div>)}
-      <div style={{marginTop:14,paddingTop:10,borderTop:"1px dashed rgba(212,160,23,.3)",textAlign:"center",fontFamily:"'DM Mono',monospace",fontSize:9,color:"rgba(100,50,0,.45)",letterSpacing:.5}}>{new Date().toLocaleDateString("en-SG",{day:"2-digit",month:"short",year:"numeric"})} · For entertainment only · Please gamble responsibly</div>
+      {mode==="4d"
+        ?<div style={{textAlign:"center"}}><span style={{fontFamily:"'DM Mono',monospace",fontSize:52,fontWeight:"500",color:t.p,letterSpacing:10}}>{numbers.join("")}</span></div>
+        :<div style={{display:"flex",gap:7,justifyContent:"center",flexWrap:"wrap"}}>{numbers.map((n,i)=>(<div key={i} style={{width:44,height:44,borderRadius:"50%",background:`radial-gradient(circle at 35% 30%,#F5C842,#B07810)`,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'DM Mono',monospace",fontSize:14,fontWeight:"500",color:"#3D2000"}}>{String(n).padStart(2,"0")}</div>))}</div>
+      }
+      <div style={{marginTop:12,paddingTop:8,borderTop:`1px dashed ${t.border}`,textAlign:"center",fontFamily:"'DM Mono',monospace",fontSize:9,color:t.muted}}>
+        {new Date().toLocaleDateString("en-SG",{day:"2-digit",month:"short",year:"numeric"})} · For entertainment only · Please gamble responsibly
+      </div>
     </div>
   );
 }
 
-function HistoryRow({ item }) {
-  const label=item.mode==="toto"?item.numbers.map(n=>String(n).padStart(2,"0")).join("  ·  "):item.numbers.join("");
-  return(<div style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:"rgba(255,255,255,.7)",border:"1px solid rgba(212,160,23,.25)",borderRadius:10,padding:"9px 14px",animation:"fadeUp .4s ease-out",gap:10}}><span style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:"#C8112A",fontWeight:"500",minWidth:28}}>{item.mode.toUpperCase()}</span><span style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#3D2000",letterSpacing:item.mode==="4d"?4:1.5,flex:1,textAlign:"center"}}>{label}</span><span style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:"rgba(100,50,0,.4)"}}>{item.time}</span></div>);
+// ── SPIN TAB ─────────────────────────────────────────
+function SpinTab({ mode, setMode, theme, phase, spin, pending, locked, result }) {
+  const t=theme, is4D=mode==="4d", count=is4D?4:6;
+  return(
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"12px 16px 90px"}}>
+      {/* Header */}
+      <div style={{textAlign:"center",marginBottom:10}}>
+        <div style={{fontFamily:"'Noto Serif SC',serif",fontSize:11,letterSpacing:6,color:t.p,marginBottom:4,transition:"color .5s"}}>{t.zh}</div>
+        <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:30,fontWeight:900,background:`linear-gradient(135deg,${t.p},${t.gold},${t.p})`,backgroundSize:"200%",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",animation:"shimmerGold 4s linear infinite",transition:"all .5s"}}>Lucky Cat</h1>
+      </div>
+      {/* Mode toggle */}
+      <div style={{display:"flex",background:t.toggleBg,borderRadius:50,padding:4,marginBottom:14,border:`1.5px solid ${t.p}28`,transition:"all .5s"}}>
+        {["toto","4d"].map(m=>(
+          <button key={m} onClick={()=>setMode(m)} style={{padding:"9px 32px",borderRadius:50,border:"none",background:mode===m?`linear-gradient(135deg,${TH[m].p},${TH[m].p2})`:"transparent",color:mode===m?"#FFFBF2":t.muted,fontFamily:"'DM Mono',monospace",fontSize:13,letterSpacing:1.5,cursor:"pointer",transition:"all .45s",fontWeight:"500",boxShadow:mode===m?`0 2px 14px ${TH[m].p}55`:"none"}}>
+            {TH[m].label}
+          </button>
+        ))}
+      </div>
+      {/* Cat — paw always waves, no click-to-spin */}
+      <Cat phase={phase} theme={t}/>
+      {/* Hint */}
+      <div style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:t.muted,letterSpacing:2.5,marginBottom:10,textAlign:"center",opacity: phase==="idle"?1:0,transition:"opacity .3s"}}>TAP SPIN TO GET YOUR NUMBERS</div>
+      {/* Reels */}
+      {(phase==="spinning"||phase==="done")&&(
+        <div style={{display:"flex",gap:is4D?10:8,justifyContent:"center",marginBottom:10,animation:"fadeUp .3s ease-out",flexWrap:"wrap"}}>
+          {Array(count).fill(0).map((_,i)=>(<Reel key={`${mode}-${i}`} value={pending[i]??null} spinning={phase==="spinning"} locked={locked.includes(i)} is4D={is4D} theme={t}/>))}
+        </div>
+      )}
+      {/* Spin button */}
+      <button onClick={spin} disabled={phase!=="idle"} style={{padding:"13px 48px",background:phase!=="idle"?`${t.p}1A`:`linear-gradient(135deg,${t.p},${t.p2})`,border:`1.5px solid ${t.gold}55`,borderRadius:50,color:phase!=="idle"?t.muted:"#FFFBF2",fontFamily:"'DM Mono',monospace",fontSize:14,letterSpacing:3,cursor:phase!=="idle"?"not-allowed":"pointer",transition:"all .4s",fontWeight:"500",animation:phase==="idle"?"glowBtn 2.8s ease-in-out infinite":"none",boxShadow:phase==="idle"?`0 4px 20px ${t.p}44`:"none"}}>
+        {phase==="idle"?"✨  SPIN":phase==="spinning"?"🎰  ROLLING...":"🎉  LUCKY!"}
+      </button>
+      {/* Result */}
+      {result&&phase!=="spinning"&&(
+        <div style={{width:"100%",maxWidth:390,animation:"fadeUp .4s ease-out"}}>
+          <Ticket numbers={result} mode={mode} theme={t}/>
+          <ShareButtons numbers={result} mode={mode} theme={t}/>
+        </div>
+      )}
+    </div>
+  );
 }
 
+// ── RESULTS TAB ──────────────────────────────────────
+function ResultsTab({ theme }) {
+  const [rMode,setRMode]=useState("toto");
+  const [myInput,setMyInput]=useState("");
+  const [matched,setMatched]=useState(null);
+  const t=theme, data=LATEST[rMode];
+
+  function check() {
+    setMatched(null);
+    if(!myInput.trim())return;
+    if(rMode==="toto"){
+      const mine=myInput.split(/[\s,]+/).map(n=>parseInt(n)).filter(n=>n>=1&&n<=49);
+      const mainHits=mine.filter(n=>data.numbers.includes(n)).length;
+      const bonusHit=mine.includes(data.additional);
+      const result={mainHits,bonusHit,win:mainHits>=3};
+      setMatched(result);
+      if(result.win)triggerConfetti();
+    } else {
+      const num=myInput.replace(/\s/g,"").trim();
+      const tier=num===data.first?"1st Prize 🏆":num===data.second?"2nd Prize 🥈":num===data.third?"3rd Prize 🥉":data.special.includes(num)?"Special Prize ⭐":data.consolation.includes(num)?"Consolation Prize 🎖️":null;
+      setMatched({num,tier,win:!!tier});
+      if(tier)triggerConfetti();
+    }
+  }
+
+  const ResultBall=({n,highlight})=>(
+    <div style={{width:42,height:42,borderRadius:"50%",background:highlight?`radial-gradient(circle at 35% 30%,${t.gold},#A07810)`:"linear-gradient(135deg,#E0E0E0,#A0A0A0)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'DM Mono',monospace",fontSize:13,fontWeight:"500",color:highlight?"#3D2000":"#444",boxShadow:highlight?`0 4px 12px ${t.gold}50`:"0 2px 6px rgba(0,0,0,.15)",transition:"all .3s"}}>
+      {String(n).padStart(2,"0")}
+    </div>
+  );
+
+  return(
+    <div style={{padding:"16px 16px 90px",maxWidth:440,margin:"0 auto"}}>
+      <div style={{textAlign:"center",marginBottom:14}}>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:22,fontWeight:900,color:t.p}}>Latest Results</div>
+        <div style={{fontFamily:"'Noto Serif SC',serif",fontSize:10,color:t.muted,marginTop:2,letterSpacing:2}}>最新开奖结果</div>
+      </div>
+      {/* Tab toggle */}
+      <div style={{display:"flex",background:t.toggleBg,borderRadius:50,padding:3,marginBottom:14,border:`1px solid ${t.p}20`}}>
+        {["toto","4d"].map(m=>(<button key={m} onClick={()=>{setRMode(m);setMatched(null);setMyInput("");}} style={{flex:1,padding:"8px",borderRadius:50,border:"none",background:rMode===m?`linear-gradient(135deg,${TH[m].p},${TH[m].p2})`:"transparent",color:rMode===m?"white":t.muted,fontFamily:"'DM Mono',monospace",fontSize:12,cursor:"pointer",transition:"all .35s",fontWeight:"500"}}>{TH[m].label}</button>))}
+      </div>
+      {/* Result card */}
+      <div style={{background:t.card,border:`1.5px solid ${t.gold}44`,borderRadius:16,padding:16,marginBottom:14,boxShadow:`0 4px 18px ${t.gold}22`}}>
+        <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>
+          <span style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:t.muted}}>Draw #{data.draw}</span>
+          <span style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:t.muted}}>{data.date}</span>
+        </div>
+        {rMode==="toto"?(
+          <>
+            <div style={{display:"flex",gap:6,flexWrap:"wrap",justifyContent:"center",marginBottom:8}}>
+              {data.numbers.map((n,i)=>(<ResultBall key={i} n={n} highlight={true}/>))}
+              <div style={{width:42,height:42,borderRadius:"50%",background:"linear-gradient(135deg,#888,#555)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'DM Mono',monospace",fontSize:13,fontWeight:"500",color:"white"}}>{String(data.additional).padStart(2,"0")}</div>
+            </div>
+            <div style={{textAlign:"center",fontFamily:"'DM Mono',monospace",fontSize:11,color:t.muted}}>Jackpot: <span style={{color:t.p,fontWeight:"500"}}>{data.jackpot}</span></div>
+          </>
+        ):(
+          <div style={{fontFamily:"'DM Mono',monospace"}}>
+            {[["1st Prize","first","#D4A017"],["2nd Prize","second","#909090"],["3rd Prize","third","#A05020"]].map(([lbl,key,col])=>(
+              <div key={lbl} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:`1px solid ${t.border}`}}>
+                <span style={{fontSize:11,color:t.muted}}>{lbl}</span>
+                <span style={{fontSize:22,fontWeight:"500",color:col,fontFamily:"'DM Mono',monospace"}}>{data[key]}</span>
+              </div>
+            ))}
+            <div style={{marginTop:10}}>
+              <div style={{fontSize:10,color:t.muted,marginBottom:5,fontFamily:"'DM Mono',monospace"}}>Special Prizes</div>
+              <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
+                {data.special.map((n,i)=>(<span key={i} style={{fontFamily:"'DM Mono',monospace",fontSize:11,background:`${t.p}14`,color:t.p,padding:"3px 9px",borderRadius:20,border:`1px solid ${t.p}22`}}>{n}</span>))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+      {/* Compare */}
+      <div style={{background:t.card,border:`1px solid ${t.border}`,borderRadius:14,padding:14}}>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:15,color:t.p,marginBottom:6}}>Check My Numbers</div>
+        <div style={{fontFamily:"'Noto Serif SC',serif",fontSize:9,color:t.muted,marginBottom:10,letterSpacing:1}}>核对我的号码</div>
+        <input value={myInput} onChange={e=>setMyInput(e.target.value)}
+          onKeyDown={e=>e.key==="Enter"&&check()}
+          placeholder={rMode==="toto"?"Enter numbers e.g: 4 12 23 31 38 45":"Enter 4D number e.g: 4829"}
+          style={{width:"100%",padding:"11px 14px",border:`1.5px solid ${t.border}`,borderRadius:10,fontFamily:"'DM Mono',monospace",fontSize:13,background:"transparent",color:t.text,outline:"none",marginBottom:10,letterSpacing:1}}
+        />
+        <button onClick={check} style={{width:"100%",padding:"11px",background:`linear-gradient(135deg,${t.p},${t.p2})`,border:"none",borderRadius:10,color:"white",fontFamily:"'DM Mono',monospace",fontSize:13,cursor:"pointer",letterSpacing:2,fontWeight:"500"}}>
+          CHECK ✓
+        </button>
+        {matched&&(
+          <div style={{marginTop:12,padding:14,background:matched.win?`${t.p}14`:`${t.gold}10`,borderRadius:12,textAlign:"center",animation:matched.win?"winPop .4s ease-out":"fadeUp .3s ease-out"}}>
+            <div style={{fontFamily:"'Playfair Display',serif",fontSize:matched.win?22:16,color:matched.win?t.p:t.muted,fontWeight:matched.win?900:400,marginBottom:matched.win?6:0}}>
+              {rMode==="4d"
+                ?matched.win?`🎉 ${matched.tier}!`:"😔 Not this time. Try again next draw!"
+                :matched.win?`🎉 ${matched.mainHits} numbers matched!${matched.bonusHit?" + Bonus number!":""}`:`${matched.mainHits||0} number${matched.mainHits===1?"":"s"} matched — not a winner this draw`
+              }
+            </div>
+            {matched.win&&<div style={{fontFamily:"'Noto Serif SC',serif",fontSize:11,color:t.muted,marginBottom:8}}>恭喜你！ Share your win!</div>}
+            {matched.win&&<ShareButtons numbers={rMode==="4d"?[matched.num||myInput]:[myInput]} mode={rMode} theme={t}/>}
+          </div>
+        )}
+      </div>
+      <div style={{marginTop:12,textAlign:"center",fontFamily:"'DM Mono',monospace",fontSize:9,color:t.muted,lineHeight:1.8}}>Results updated automatically after each draw.<br/>Data from Singapore Pools.</div>
+    </div>
+  );
+}
+
+// ── COLLECTION TAB ────────────────────────────────────
+function CollectionTab({ theme }) {
+  const t=theme;
+  const skins=[
+    {name:"Classic Calico",zh:"三花猫",emoji:"🐱",unlocked:true,desc:"Default lucky cat"},
+    {name:"Gold Cat",zh:"金猫",emoji:"✨",unlocked:false,desc:"All-gold prosperity"},
+    {name:"Jade Cat",zh:"翡翠猫",emoji:"💚",unlocked:false,desc:"Jade fortune cat"},
+    {name:"Red Cat",zh:"红猫",emoji:"🔴",unlocked:false,desc:"Auspicious red"},
+    {name:"Black Cat",zh:"黑猫",emoji:"🖤",unlocked:false,desc:"Midnight mystery"},
+    {name:"Rainbow Cat",zh:"彩虹猫",emoji:"🌈",unlocked:false,desc:"Ultra rare"},
+  ];
+  const companions=[
+    {name:"Guan Yin",zh:"观音",emoji:"🙏",unlocked:false,desc:"Goddess of Mercy"},
+    {name:"Laughing Buddha",zh:"弥勒佛",emoji:"😊",unlocked:false,desc:"Wealth & joy"},
+    {name:"Fu Lu Shou",zh:"福禄寿",emoji:"🌟",unlocked:false,desc:"Fortune, Prosperity, Longevity"},
+    {name:"Dragon",zh:"龙",emoji:"🐉",unlocked:false,desc:"Imperial good fortune"},
+  ];
+  const Item=({item})=>(
+    <div style={{background:item.unlocked?t.card:`${t.card}CC`,border:`1.5px solid ${item.unlocked?t.gold:t.border}`,borderRadius:14,padding:"14px 10px",display:"flex",flexDirection:"column",alignItems:"center",gap:5,position:"relative",opacity:item.unlocked?1:.72,transition:"all .3s"}}>
+      {!item.unlocked&&<div style={{position:"absolute",top:7,right:7,background:t.p,color:"white",fontSize:8,fontFamily:"'DM Mono',monospace",padding:"2px 7px",borderRadius:20,letterSpacing:.5}}>SOON</div>}
+      <span style={{fontSize:36}}>{item.emoji}</span>
+      <div style={{fontFamily:"'Noto Serif SC',serif",fontSize:11,color:t.text,textAlign:"center",fontWeight:"bold"}}>{item.name}</div>
+      <div style={{fontFamily:"'Noto Serif SC',serif",fontSize:9,color:t.muted,textAlign:"center"}}>{item.zh}</div>
+      <div style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:t.muted,textAlign:"center",lineHeight:1.4}}>{item.desc}</div>
+      {item.unlocked&&<div style={{background:`${t.gold}22`,border:`1px solid ${t.gold}55`,borderRadius:20,padding:"3px 10px",fontFamily:"'DM Mono',monospace",fontSize:9,color:"#7A5C00"}}>ACTIVE</div>}
+    </div>
+  );
+  return(
+    <div style={{padding:"16px 16px 90px",maxWidth:440,margin:"0 auto"}}>
+      <div style={{textAlign:"center",marginBottom:16}}>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:22,fontWeight:900,color:t.p}}>My Collection</div>
+        <div style={{fontFamily:"'Noto Serif SC',serif",fontSize:10,color:t.muted,marginTop:2,letterSpacing:2}}>我的收藏</div>
+      </div>
+      <div style={{fontFamily:"'Playfair Display',serif",fontSize:14,color:t.p,marginBottom:10}}>Cat Skins 猫咪皮肤</div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:20}}>
+        {skins.map((s,i)=><Item key={i} item={s}/>)}
+      </div>
+      <div style={{fontFamily:"'Playfair Display',serif",fontSize:14,color:t.p,marginBottom:10}}>Prayer Companions 祈福伴侣</div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:10,marginBottom:16}}>
+        {companions.map((c,i)=><Item key={i} item={c}/>)}
+      </div>
+      <div style={{padding:14,background:`${t.p}0C`,border:`1.5px dashed ${t.p}38`,borderRadius:14,textAlign:"center"}}>
+        <div style={{fontFamily:"'Noto Serif SC',serif",fontSize:12,color:t.p,marginBottom:4}}>解锁更多 Unlock More</div>
+        <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,color:t.muted,lineHeight:1.8}}>Top up spin credits via PayNow.<br/>Skins & companions coming soon! 🙏</div>
+      </div>
+    </div>
+  );
+}
+
+// ── TAB BAR ──────────────────────────────────────────
+function TabBar({ tab, setTab, theme }) {
+  const t=theme;
+  const tabs=[{id:"spin",icon:"🎰",label:"Spin"},{id:"results",icon:"📋",label:"Results"},{id:"collection",icon:"🎁",label:"Collection"}];
+  return(
+    <div style={{position:"fixed",bottom:0,left:0,right:0,background:t.card,borderTop:`1px solid ${t.border}`,display:"flex",justifyContent:"space-around",paddingBottom:"max(env(safe-area-inset-bottom),10px)",paddingTop:2,zIndex:100,boxShadow:"0 -6px 24px rgba(0,0,0,.1)",transition:"background .5s,border-color .5s"}}>
+      {tabs.map(tb=>(
+        <button key={tb.id} onClick={()=>setTab(tb.id)} style={{flex:1,padding:"8px 0 4px",background:"none",border:"none",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:2,transition:"transform .2s",transform:tab===tb.id?"scale(1.12)":"scale(1)"}}>
+          <span style={{fontSize:22}}>{tb.icon}</span>
+          <span style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:tab===tb.id?t.p:t.muted,letterSpacing:.5,fontWeight:tab===tb.id?"500":"400",transition:"color .4s"}}>{tb.label}</span>
+          {tab===tb.id&&<div style={{width:4,height:4,borderRadius:"50%",background:t.p}}/>}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ── ROOT ─────────────────────────────────────────────
 export default function App() {
+  const [tab,setTab]=useState("spin");
   const [mode,setMode]=useState("toto");
   const [phase,setPhase]=useState("idle");
   const [pending,setPending]=useState([]);
   const [locked,setLocked]=useState([]);
   const [result,setResult]=useState(null);
-  const [history,setHistory]=useState([]);
   const tids=useRef([]);
   useEffect(()=>{injectGlobals();},[]);
+  const t=TH[mode];
+
   function clearTids(){tids.current.forEach(clearTimeout);tids.current=[];}
   function addTid(fn,d){const id=setTimeout(fn,d);tids.current.push(id);}
+
   const spin=useCallback(()=>{
     if(phase!=="idle")return;
     clearTids();setLocked([]);setResult(null);
     const nums=mode==="toto"?genTOTO():gen4D();
     setPending(nums);setPhase("spinning");
     nums.forEach((_,i)=>addTid(()=>setLocked(p=>[...p,i]),900+i*380));
-    addTid(()=>{setResult(nums);setPhase("done");setHistory(p=>[{mode,numbers:nums,time:new Date().toLocaleTimeString("en-SG",{hour:"2-digit",minute:"2-digit"})},...p.slice(0,9)]);addTid(()=>setPhase("idle"),2000);},(900+nums.length*380+220));
+    addTid(()=>{setResult(nums);setPhase("done");addTid(()=>setPhase("idle"),2200);},(900+nums.length*380+220));
   },[phase,mode]);
-  const count=mode==="toto"?6:4;const is4D=mode==="4d";
+
   return(
-    <div style={{minHeight:"100vh",background:"linear-gradient(180deg,#FDF3E7 0%,#FAE8D0 60%,#F5DCC0 100%)",color:"#3D1515",display:"flex",flexDirection:"column",alignItems:"center",padding:"22px 18px 52px",position:"relative",overflow:"hidden",fontFamily:"'Playfair Display',serif"}}>
-      <div style={{position:"absolute",top:0,left:0,right:0,height:6,background:"linear-gradient(90deg,#C8112A,#D4A017,#C8112A,#D4A017,#C8112A)"}}/>
-      <div style={{position:"absolute",inset:0,backgroundImage:"radial-gradient(circle,rgba(200,17,42,.04) 1px,transparent 1px)",backgroundSize:"28px 28px",pointerEvents:"none"}}/>
-      <div style={{textAlign:"center",marginBottom:10,zIndex:1,marginTop:8}}>
-        <div style={{fontFamily:"'Noto Serif SC',serif",fontSize:11,letterSpacing:6,color:"#C8112A",marginBottom:4}}>招财猫</div>
-        <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:32,fontWeight:900,lineHeight:1,background:"linear-gradient(135deg,#C8112A 0%,#D4A017 50%,#C8112A 100%)",backgroundSize:"200% auto",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",animation:"shimmerGold 4s linear infinite"}}>Lucky Cat</h1>
-        <div style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:"rgba(100,40,10,.5)",marginTop:5,letterSpacing:2}}>probability-powered · sg lottery</div>
+    <div style={{minHeight:"100vh",background:t.bg,transition:"background .6s ease",position:"relative",overflow:"hidden"}}>
+      <div style={{position:"fixed",top:0,left:0,right:0,height:5,background:`linear-gradient(90deg,${t.p},${t.gold},${t.p},${t.gold},${t.p})`,zIndex:200,transition:"background .5s"}}/>
+      <div style={{position:"absolute",inset:0,backgroundImage:`radial-gradient(circle,${t.p}07 1px,transparent 1px)`,backgroundSize:"28px 28px",pointerEvents:"none",transition:"background-image .5s"}}/>
+      <div style={{paddingTop:10}}>
+        {tab==="spin"&&<SpinTab mode={mode} setMode={m=>{setMode(m);setResult(null);setPending([]);setLocked([]);setPhase("idle");}} theme={t} phase={phase} spin={spin} pending={pending} locked={locked} result={result}/>}
+        {tab==="results"&&<ResultsTab theme={t}/>}
+        {tab==="collection"&&<CollectionTab theme={t}/>}
       </div>
-      <div style={{display:"flex",background:"rgba(200,17,42,.08)",borderRadius:50,padding:4,marginBottom:14,border:"1.5px solid rgba(200,17,42,.18)",zIndex:1}}>
-        {["toto","4d"].map(m=>(<button key={m} onClick={()=>{if(phase==="idle"){setMode(m);setResult(null);setPending([]);setLocked([]);}}} style={{padding:"9px 34px",borderRadius:50,border:"none",background:mode===m?"linear-gradient(135deg,#C8112A,#880C1E)":"transparent",color:mode===m?"#FFFBF2":"rgba(100,40,10,.55)",fontFamily:"'DM Mono',monospace",fontSize:13,letterSpacing:1.5,cursor:"pointer",transition:"all .25s",fontWeight:"500",boxShadow:mode===m?"0 2px 14px rgba(200,17,42,.4)":"none"}}>{m.toUpperCase()}</button>))}
-      </div>
-      <Cat phase={phase} onSpin={spin}/>
-      {phase==="idle"&&(<div style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:"rgba(100,40,10,.45)",letterSpacing:3,marginBottom:10,animation:"fadeUp .5s ease-out",textAlign:"center"}}>TAP THE CAT'S PAW TO SPIN</div>)}
-      {(phase==="spinning"||phase==="done")&&(<div style={{display:"flex",gap:is4D?10:8,justifyContent:"center",marginBottom:10,animation:"fadeUp .3s ease-out",flexWrap:"wrap",zIndex:1}}>{Array(count).fill(0).map((_,i)=>(<Reel key={`${mode}-${i}`} value={pending[i]??null} spinning={phase==="spinning"} locked={locked.includes(i)} is4D={is4D}/>))}</div>)}
-      <button onClick={spin} disabled={phase!=="idle"} style={{marginTop:phase==="idle"?4:12,padding:"14px 48px",background:phase!=="idle"?"rgba(200,17,42,.15)":"linear-gradient(135deg,#C8112A,#880C1E)",border:"1.5px solid rgba(212,160,23,.4)",borderRadius:50,color:phase!=="idle"?"rgba(100,40,10,.4)":"#FFFBF2",fontFamily:"'DM Mono',monospace",fontSize:14,letterSpacing:3,cursor:phase!=="idle"?"not-allowed":"pointer",transition:"all .3s",zIndex:1,fontWeight:"500",animation:phase==="idle"?"glowRed 2.8s ease-in-out infinite":"none",boxShadow:phase==="idle"?"0 4px 20px rgba(200,17,42,.35)":"none"}}>
-        {phase==="idle"?"✨  SPIN":phase==="spinning"?"🎰  ROLLING...":"🎉  LUCKY!"}
-      </button>
-      {result&&phase!=="spinning"&&(<div style={{width:"100%",maxWidth:390,zIndex:1}}><Ticket numbers={result} mode={mode}/></div>)}
-      {history.length>0&&(<div style={{width:"100%",maxWidth:390,marginTop:28,zIndex:1}}><div style={{fontFamily:"'Noto Serif SC',serif",fontSize:12,color:"rgba(100,40,10,.5)",textAlign:"center",letterSpacing:4,marginBottom:10}}>过去转动</div><div style={{display:"flex",flexDirection:"column",gap:6}}>{history.slice(0,6).map((h,i)=>(<HistoryRow key={i} item={h}/>))}</div></div>)}
-      <div style={{marginTop:36,textAlign:"center",fontFamily:"'DM Mono',monospace",fontSize:9,color:"rgba(100,40,10,.35)",letterSpacing:.5,lineHeight:1.9,maxWidth:290,zIndex:1}}>For entertainment only. Numbers are statistically weighted but do not predict or guarantee lottery wins. Please gamble responsibly.<br/>NCPG Helpline: 1800-6-668-668</div>
-      <div style={{position:"fixed",bottom:0,left:0,right:0,height:4,background:"linear-gradient(90deg,#C8112A,#D4A017,#C8112A,#D4A017,#C8112A)"}}/>
+      <TabBar tab={tab} setTab={setTab} theme={t}/>
+      <div style={{position:"fixed",bottom:0,left:0,right:0,height:4,background:`linear-gradient(90deg,${t.p},${t.gold},${t.p})`,zIndex:200}}/>
     </div>
   );
 }
