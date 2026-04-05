@@ -114,71 +114,240 @@ function triggerConfetti() {
   }
 }
 
-// ── SHARE / CANVAS ────────────────────────────────────
-function buildShareImage(numbers, mode, theme, cb) {
+// ── STORIES IMAGE (1080x1920 portrait) ──────────────
+function buildStoriesImage(numbers, mode, theme, cb) {
+  const W=1080, H=1920;
   const c=document.createElement("canvas");
-  c.width=1080;c.height=1080;
+  c.width=W; c.height=H;
   const ctx=c.getContext("2d");
-  const g=ctx.createLinearGradient(0,0,1080,1080);
-  g.addColorStop(0, mode==="toto"?"#FDF3E7":"#EEF8F1");
-  g.addColorStop(1, mode==="toto"?"#F2DCC0":"#D0E8D8");
-  ctx.fillStyle=g; ctx.fillRect(0,0,1080,1080);
-  ctx.strokeStyle=mode==="toto"?"#C8112A":"#1A6B3C"; ctx.lineWidth=28; ctx.strokeRect(14,14,1052,1052);
-  ctx.strokeStyle="#D4A017"; ctx.lineWidth=7; ctx.strokeRect(28,28,1024,1024);
-  ctx.fillStyle=mode==="toto"?"#C8112A":"#1A6B3C";
-  ctx.font="bold 68px serif"; ctx.textAlign="center";
-  ctx.fillText("招财猫  Lucky Cat",540,130);
-  ctx.fillStyle="#D4A017"; ctx.font="500 38px monospace";
-  ctx.fillText(mode==="toto"?"TOTO — 6 LUCKY NUMBERS":"4D — LUCKY NUMBER",540,210);
-  if(mode==="4d"){
-    ctx.fillStyle=mode==="toto"?"#C8112A":"#1A6B3C";
-    ctx.font="bold 160px monospace"; ctx.textAlign="center";
-    ctx.fillText(numbers.join(""),540,480);
+  const isT=mode==="toto";
+
+  // Background
+  const bg=ctx.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0, isT?"#2A0008":"#081A0E");
+  bg.addColorStop(0.5, isT?"#C8112A":"#1A6B3C");
+  bg.addColorStop(1, isT?"#1A0005":"#040E08");
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  // Dot pattern
+  ctx.fillStyle="rgba(212,160,23,.07)";
+  for(let x=0;x<W;x+=44)for(let y=0;y<H;y+=44){ctx.beginPath();ctx.arc(x,y,2.5,0,Math.PI*2);ctx.fill();}
+
+  // Borders
+  ctx.strokeStyle="#D4A017"; ctx.lineWidth=18; ctx.strokeRect(18,18,W-36,H-36);
+  ctx.strokeStyle="rgba(212,160,23,.35)"; ctx.lineWidth=5; ctx.strokeRect(36,36,W-72,H-72);
+
+  // Decorative corner diamonds
+  [[60,60],[W-60,60],[60,H-60],[W-60,H-60]].forEach(([x,y])=>{
+    ctx.save(); ctx.translate(x,y); ctx.rotate(Math.PI/4);
+    ctx.fillStyle="#D4A017"; ctx.fillRect(-14,-14,28,28);
+    ctx.fillStyle="rgba(255,255,255,.3)"; ctx.fillRect(-7,-7,14,14);
+    ctx.restore();
+  });
+
+  // ── CAT ──────────────────────────────────────────────
+  const cx=W/2, cy=640, r=260;
+
+  // Round ears (drawn first, head covers bottom)
+  [cx-155, cx+155].forEach((ex,i)=>{
+    ctx.fillStyle="#FEFAF2"; ctx.beginPath(); ctx.arc(ex,cy-195,82,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle="#EDD8B0"; ctx.lineWidth=5; ctx.stroke();
+    ctx.fillStyle="#FFCCD8"; ctx.beginPath(); ctx.arc(ex,cy-200,52,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=i===0?"rgba(196,123,42,.55)":"rgba(42,26,10,.38)";
+    ctx.beginPath(); ctx.arc(ex,cy-204,28,0,Math.PI*2); ctx.fill();
+  });
+
+  // Head
+  ctx.fillStyle="#FEFAF2"; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle="#EDD8B0"; ctx.lineWidth=6; ctx.stroke();
+
+  // Calico patches
+  ctx.fillStyle="rgba(196,123,42,.45)";
+  ctx.beginPath(); ctx.ellipse(cx+115,cy-65,125,105,0.2,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle="rgba(42,26,10,.25)";
+  ctx.beginPath(); ctx.ellipse(cx-95,cy-75,95,80,-0.1,0,Math.PI*2); ctx.fill();
+
+  // Forehead dot
+  ctx.fillStyle=isT?"rgba(200,17,42,.55)":"rgba(26,107,60,.55)";
+  ctx.beginPath(); ctx.arc(cx,cy-195,22,0,Math.PI*2); ctx.fill();
+
+  // Happy crescent eyes
+  ctx.strokeStyle="#2A1A0A"; ctx.lineWidth=15; ctx.lineCap="round";
+  ctx.beginPath(); ctx.arc(cx-95,cy-25,58,Math.PI*1.18,Math.PI*1.82); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx+95,cy-25,58,Math.PI*1.18,Math.PI*1.82); ctx.stroke();
+
+  // Nose
+  ctx.fillStyle="#FFCCD8"; ctx.beginPath(); ctx.arc(cx,cy+42,18,0,Math.PI*2); ctx.fill();
+
+  // Smile
+  ctx.strokeStyle="#904040"; ctx.lineWidth=9; ctx.lineCap="round";
+  ctx.beginPath(); ctx.moveTo(cx-55,cy+72); ctx.quadraticCurveTo(cx,cy+115,cx+55,cy+72); ctx.stroke();
+
+  // Whiskers
+  ctx.strokeStyle="rgba(200,200,200,.65)"; ctx.lineWidth=4.5; ctx.lineCap="round";
+  [[cx-108,cy-10,cx-290,cy-30],[cx-108,cy+18,cx-290,cy+28],
+   [cx+108,cy-10,cx+290,cy-30],[cx+108,cy+18,cx+290,cy+28]].forEach(([x1,y1,x2,y2])=>{
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  });
+
+  // Collar
+  ctx.strokeStyle=isT?"#C8112A":"#1A6B3C"; ctx.lineWidth=44; ctx.lineCap="round";
+  ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI*0.62,Math.PI*0.38); ctx.stroke();
+  // Collar shine
+  ctx.strokeStyle="rgba(255,255,255,.2)"; ctx.lineWidth=10;
+  ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI*0.64,Math.PI*0.36); ctx.stroke();
+
+  // Bell
+  const bellG=ctx.createRadialGradient(cx-12,cy+r-14,4,cx,cy+r+2,32);
+  bellG.addColorStop(0,"#F5C842"); bellG.addColorStop(1,"#A07810");
+  ctx.fillStyle=bellG; ctx.beginPath(); ctx.arc(cx,cy+r+2,34,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle="rgba(0,0,0,.2)"; ctx.beginPath(); ctx.arc(cx,cy+r+2,12,0,Math.PI*2); ctx.fill();
+
+  // Raised paw (right side) - simplified circle paw
+  ctx.save(); ctx.translate(cx+245,cy-55); ctx.rotate(-0.4);
+  ctx.fillStyle="#FEFAF2"; ctx.strokeStyle="#EDD8B0"; ctx.lineWidth=5;
+  ctx.beginPath(); ctx.ellipse(0,0,62,115,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(0,-110,50,42,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+  ctx.fillStyle="#FFCCD8";
+  [[-18,-138],[0,-144],[18,-138]].forEach(([px,py])=>{ctx.beginPath();ctx.arc(px,py,16,0,Math.PI*2);ctx.fill();});
+  ctx.restore();
+
+  // ── HEADER TEXT ──────────────────────────────────────
+  ctx.textAlign="center"; ctx.fillStyle="#D4A017";
+  ctx.font="bold 62px serif"; ctx.fillText("招财猫  Lucky Cat",W/2,120);
+  ctx.fillStyle="rgba(255,255,255,.55)"; ctx.font="500 36px monospace";
+  ctx.fillText(isT?"六合彩  TOTO":"四位数  4D",W/2,175);
+
+  // ── DIVIDER ──────────────────────────────────────────
+  const divY=980;
+  ctx.strokeStyle="rgba(212,160,23,.4)"; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(80,divY); ctx.lineTo(W-80,divY); ctx.stroke();
+  // Divider diamonds
+  [W/2-60,W/2,W/2+60].forEach(x=>{
+    ctx.save(); ctx.translate(x,divY); ctx.rotate(Math.PI/4);
+    ctx.fillStyle="#D4A017"; ctx.fillRect(-7,-7,14,14);
+    ctx.restore();
+  });
+
+  // ── NUMBERS ──────────────────────────────────────────
+  if(isT){
+    // TOTO: 6 gold balls in 3+3 grid
+    const ballR=105, rows=[[0,1,2],[3,4,5]];
+    rows.forEach((row,ri)=>{
+      const rowY=1120+ri*240;
+      const startX=W/2-(row.length-1)*(ballR*2+18)/2;
+      row.forEach((idx,ci)=>{
+        const n=numbers[idx];
+        if(n==null)return;
+        const bx=startX+ci*(ballR*2+18), by=rowY;
+        const bg2=ctx.createRadialGradient(bx-ballR*0.35,by-ballR*0.35,8,bx,by,ballR);
+        bg2.addColorStop(0,"#F5C842"); bg2.addColorStop(1,"#A07810");
+        ctx.fillStyle=bg2; ctx.beginPath(); ctx.arc(bx,by,ballR,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle="rgba(255,255,255,.15)"; ctx.lineWidth=4; ctx.stroke();
+        ctx.fillStyle="#3D2000"; ctx.font="bold 88px monospace";
+        ctx.fillText(String(n).padStart(2,"0"),bx,by+32);
+      });
+    });
   } else {
-    ctx.font="bold 100px monospace";
-    const row=numbers.map(n=>String(n).padStart(2,"0")).join("   ");
-    ctx.fillStyle="#D4A017"; ctx.fillText(row,540,480);
+    // 4D: huge single number
+    ctx.fillStyle="rgba(255,255,255,.12)";
+    ctx.beginPath(); ctx.roundRect(80,1020,W-160,280,30); ctx.fill();
+    ctx.fillStyle="#FFFFFF"; ctx.font="bold 220px monospace";
+    ctx.fillText(numbers.join(""),W/2,1270);
   }
-  ctx.fillStyle="rgba(0,0,0,.35)"; ctx.font="28px monospace";
-  ctx.fillText("lucky-cat-ten.vercel.app",540,640);
-  ctx.font="22px monospace";
-  ctx.fillText("For entertainment only · NCPG 1800-6-668-668",540,690);
-  ctx.fillStyle=mode==="toto"?"rgba(200,17,42,.12)":"rgba(26,107,60,.12)";
-  for(let x=0;x<1080;x+=36)for(let y=0;y<1080;y+=36){ctx.beginPath();ctx.arc(x,y,2,0,Math.PI*2);ctx.fill();}
+
+  // ── HUAT HUAT ────────────────────────────────────────
+  const huatY=isT?1590:1430;
+  ctx.fillStyle="#F5C842";
+  ctx.font="bold 120px serif"; ctx.fillText("HUAT HUAT!",W/2,huatY);
+  ctx.fillStyle="rgba(255,255,255,.75)";
+  ctx.font="bold 90px serif"; ctx.fillText("发 发! 🧧",W/2,huatY+110);
+
+  // Coins
+  const coinY=isT?1760:1620;
+  [-360,-180,0,180,360].forEach((ox,i)=>{
+    const coinR=i===2?40:28;
+    const cg=ctx.createRadialGradient(W/2+ox-coinR*0.3,coinY-coinR*0.3,3,W/2+ox,coinY,coinR);
+    cg.addColorStop(0,"#F5C842"); cg.addColorStop(1,"#A07810");
+    ctx.fillStyle=cg; ctx.beginPath(); ctx.arc(W/2+ox,coinY,coinR,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle="rgba(255,255,255,.25)"; ctx.beginPath(); ctx.arc(W/2+ox,coinY,coinR*0.5,0,Math.PI*2); ctx.fill();
+  });
+
+  // Footer
+  ctx.fillStyle="rgba(255,255,255,.3)"; ctx.font="26px monospace";
+  ctx.fillText("lucky-cat-ten.vercel.app",W/2,H-80);
+  ctx.font="20px monospace";
+  ctx.fillText("For entertainment only  ·  NCPG 1800-6-668-668",W/2,H-44);
+
   c.toBlob(cb,"image/png");
 }
 
-async function shareResult(numbers, mode, theme) {
-  buildShareImage(numbers, mode, theme, async(blob)=>{
-    const file=new File([blob],"lucky-cat.png",{type:"image/png"});
-    const text=`🐱 My Lucky Cat ${mode.toUpperCase()}: ${mode==="4d"?numbers.join(""):numbers.join(", ")} — lucky-cat-ten.vercel.app`;
+async function shareToStories(numbers, mode, theme) {
+  buildStoriesImage(numbers, mode, theme, async(blob)=>{
+    const file=new File([blob],"lucky-cat-huat.png",{type:"image/png"});
+    const txt=`🐱 HUAT HUAT! 发发! My Lucky Cat ${mode.toUpperCase()}: ${mode==="4d"?numbers.join(""):numbers.join(", ")} — lucky-cat-ten.vercel.app`;
     if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-      try{await navigator.share({files:[file],title:"My Lucky Numbers!",text});}
-      catch(e){downloadBlob(blob);}
+      try{await navigator.share({files:[file],title:"HUAT HUAT! 发发!",text:txt});}
+      catch(e){if(e.name!=="AbortError")downloadBlob(blob);}
     } else { downloadBlob(blob); }
   });
 }
-function downloadBlob(blob){const u=URL.createObjectURL(blob);const a=document.createElement("a");a.href=u;a.download="lucky-cat.png";a.click();setTimeout(()=>URL.revokeObjectURL(u),3000);}
 
-// ── SHARE BUTTONS ─────────────────────────────────────
+function downloadBlob(blob){const u=URL.createObjectURL(blob);const a=document.createElement("a");a.href=u;a.download="lucky-cat-huat.png";a.click();setTimeout(()=>URL.revokeObjectURL(u),3000);}
+
+// Legacy square share for WhatsApp/Telegram
+async function shareResult(numbers, mode, theme) {
+  const c=document.createElement("canvas");
+  c.width=1080;c.height=1080;
+  const ctx=c.getContext("2d");
+  const isT=mode==="toto";
+  const g=ctx.createLinearGradient(0,0,1080,1080);
+  g.addColorStop(0,isT?"#FDF3E7":"#EEF8F1"); g.addColorStop(1,isT?"#F2DCC0":"#D0E8D8");
+  ctx.fillStyle=g; ctx.fillRect(0,0,1080,1080);
+  ctx.strokeStyle=isT?"#C8112A":"#1A6B3C"; ctx.lineWidth=28; ctx.strokeRect(14,14,1052,1052);
+  ctx.strokeStyle="#D4A017"; ctx.lineWidth=7; ctx.strokeRect(28,28,1024,1024);
+  ctx.textAlign="center";
+  ctx.fillStyle=isT?"#C8112A":"#1A6B3C"; ctx.font="bold 68px serif"; ctx.fillText("招财猫  Lucky Cat",540,130);
+  ctx.fillStyle="#D4A017"; ctx.font="500 38px monospace"; ctx.fillText(isT?"TOTO — 6 LUCKY NUMBERS":"4D — LUCKY NUMBER",540,210);
+  if(isT){ctx.font="bold 90px monospace";const row=numbers.map(n=>String(n).padStart(2,"0")).join("  ");ctx.fillStyle="#D4A017";ctx.fillText(row,540,480);}
+  else{ctx.fillStyle=isT?"#C8112A":"#1A6B3C";ctx.font="bold 160px monospace";ctx.fillText(numbers.join(""),540,480);}
+  ctx.fillStyle="rgba(0,0,0,.3)"; ctx.font="26px monospace"; ctx.fillText("lucky-cat-ten.vercel.app",540,620);
+  c.toBlob(async(blob)=>{
+    const file=new File([blob],"lucky-cat.png",{type:"image/png"});
+    const txt=encodeURIComponent(`🐱 My Lucky Cat ${mode.toUpperCase()}: ${mode==="4d"?numbers.join(""):numbers.join(", ")} HUAT HUAT! lucky-cat-ten.vercel.app`);
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file]});}catch(e){downloadBlob(blob);}}
+    else{window.open(`https://wa.me/?text=${txt}`,"_blank");}
+  });
+}
+
+
+// ── SHARE BUTTONS ────────────────────────────────────
 function ShareButtons({ numbers, mode, theme }) {
-  const txt=encodeURIComponent(`🐱 My Lucky Cat ${mode.toUpperCase()}: ${mode==="4d"?numbers.join(""):numbers.join(", ")} — lucky-cat-ten.vercel.app`);
   const t=theme;
+  const txt=encodeURIComponent(`🐱 HUAT HUAT! My Lucky Cat ${mode.toUpperCase()}: ${mode==="4d"?numbers.join(""):numbers.join(", ")} — lucky-cat-ten.vercel.app`);
   return(
-    <div style={{display:"flex",gap:8,justifyContent:"center",marginTop:12,flexWrap:"wrap"}}>
-      {[
-        {label:"WhatsApp",color:"#25D366",icon:"💬",url:`https://wa.me/?text=${txt}`},
-        {label:"Telegram",color:"#0088CC",icon:"✈️",url:`https://t.me/share/url?url=lucky-cat-ten.vercel.app&text=${txt}`},
-        {label:"Save & Share",color:t.p,icon:"📤",fn:()=>shareResult(numbers,mode,t)},
-      ].map(b=>(
-        <button key={b.label} onClick={()=>b.fn?b.fn():window.open(b.url,"_blank")}
-          style={{display:"flex",alignItems:"center",gap:5,padding:"8px 15px",background:b.color,border:"none",borderRadius:50,color:"white",fontFamily:"'DM Mono',monospace",fontSize:11,cursor:"pointer",letterSpacing:.5,fontWeight:"500"}}>
-          <span style={{fontSize:13}}>{b.icon}</span>{b.label}
+    <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:12}}>
+      {/* Primary CTA — Stories */}
+      <button onClick={()=>shareToStories(numbers,mode,t)} style={{width:"100%",padding:"14px",background:`linear-gradient(135deg,${t.p},${t.gold})`,border:"none",borderRadius:14,color:"white",fontFamily:"'DM Mono',monospace",fontSize:13,cursor:"pointer",letterSpacing:.5,fontWeight:"500",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+        <span style={{fontSize:18}}>📲</span>
+        Share to Stories — IG · TikTok · Lemon8
+      </button>
+      {/* Secondary row */}
+      <div style={{display:"flex",gap:8}}>
+        <button onClick={()=>window.open(`https://wa.me/?text=${txt}`,"_blank")} style={{flex:1,padding:"10px 8px",background:"#25D366",border:"none",borderRadius:10,color:"white",fontFamily:"'DM Mono',monospace",fontSize:11,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>
+          <span style={{fontSize:14}}>💬</span>WhatsApp
         </button>
-      ))}
+        <button onClick={()=>window.open(`https://t.me/share/url?url=lucky-cat-ten.vercel.app&text=${txt}`,"_blank")} style={{flex:1,padding:"10px 8px",background:"#0088CC",border:"none",borderRadius:10,color:"white",fontFamily:"'DM Mono',monospace",fontSize:11,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>
+          <span style={{fontSize:14}}>✈️</span>Telegram
+        </button>
+        <button onClick={()=>shareResult(numbers,mode,t)} style={{flex:1,padding:"10px 8px",background:`${t.p}CC`,border:"none",borderRadius:10,color:"white",fontFamily:"'DM Mono',monospace",fontSize:11,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>
+          <span style={{fontSize:14}}>📥</span>Save
+        </button>
+      </div>
     </div>
   );
 }
+
 
 // ── CAT SVG (all round, no pointy shapes) ────────────
 function Cat({ phase, theme }) {
