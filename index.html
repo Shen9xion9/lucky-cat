@@ -2,12 +2,31 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0D0208" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#C8112A" />
+
+    <!-- iOS home screen support -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Lucky Cat" />
+    <link rel="apple-touch-icon" href="/icon.svg" />
+
+    <!-- SEO / share preview -->
     <title>Lucky Cat · SG Lottery Numbers</title>
-    <meta name="description" content="Probability-powered lottery number generator for Singapore TOTO and 4D. Tap the lucky cat to spin." />
+    <meta name="description" content="Probability-powered TOTO and 4D number generator. Tap the lucky cat and let fortune decide. 招财猫" />
+    <meta property="og:title" content="Lucky Cat · SG Lottery Numbers" />
+    <meta property="og:description" content="Tap the lucky cat to get your TOTO and 4D numbers. Powered by real draw history." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://lucky-cat-ten.vercel.app" />
+
+    <style>
+      html, body { margin: 0; padding: 0; background: #FDF3E7; }
+    </style>
   </head>
-  <body style="margin:0;background:#0D0208;">
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Red background -->
+  <circle cx="256" cy="256" r="256" fill="#C8112A"/>
+  <!-- Gold ring -->
+  <circle cx="256" cy="256" r="238" fill="none" stroke="#D4A017" stroke-width="14"/>
+  <!-- Inner gold ring -->
+  <circle cx="256" cy="256" r="222" fill="none" stroke="rgba(212,160,23,.4)" stroke-width="4"/>
+
+  <!-- Round ears — drawn first, head covers bottom half -->
+  <circle cx="142" cy="152" r="70" fill="#FEFAF2"/>
+  <circle cx="370" cy="152" r="70" fill="#FEFAF2"/>
+  <circle cx="142" cy="148" r="44" fill="#FFCCD8"/>
+  <circle cx="370" cy="148" r="44" fill="#FFCCD8"/>
+  <circle cx="142" cy="144" r="24" fill="rgba(196,123,42,.55)"/>
+  <circle cx="370" cy="144" r="24" fill="rgba(42,26,10,.32)"/>
+
+  <!-- Head -->
+  <circle cx="256" cy="286" r="175" fill="#FEFAF2"/>
+
+  <!-- Calico patches -->
+  <ellipse cx="324" cy="248" rx="88" ry="72" fill="rgba(196,123,42,.48)"/>
+  <ellipse cx="192" cy="242" rx="68" ry="58" fill="rgba(42,26,10,.24)"/>
+
+  <!-- Forehead dot -->
+  <circle cx="256" cy="148" r="16" fill="rgba(200,17,42,.5)"/>
+
+  <!-- Happy crescent eyes -->
+  <path d="M195 278 Q220 256 245 278" fill="none" stroke="#2A1A0A" stroke-width="16" stroke-linecap="round"/>
+  <path d="M267 278 Q292 256 317 278" fill="none" stroke="#2A1A0A" stroke-width="16" stroke-linecap="round"/>
+
+  <!-- Nose -->
+  <circle cx="256" cy="308" r="15" fill="#FFCCD8"/>
+
+  <!-- Smile -->
+  <path d="M228 330 Q256 364 284 330" fill="none" stroke="#904040" stroke-width="9" stroke-linecap="round"/>
+
+  <!-- Whiskers -->
+  <line x1="100" y1="294" x2="230" y2="302" stroke="rgba(180,180,180,.7)" stroke-width="5" stroke-linecap="round"/>
+  <line x1="100" y1="316" x2="230" y2="314" stroke="rgba(180,180,180,.7)" stroke-width="5" stroke-linecap="round"/>
+  <line x1="412" y1="294" x2="282" y2="302" stroke="rgba(180,180,180,.7)" stroke-width="5" stroke-linecap="round"/>
+  <line x1="412" y1="316" x2="282" y2="314" stroke="rgba(180,180,180,.7)" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Red collar -->
+  <path d="M98 388 Q256 424 414 388" fill="none" stroke="#8B0018" stroke-width="38" stroke-linecap="round"/>
+  <path d="M108 391 Q256 426 404 391" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="10" stroke-linecap="round"/>
+
+  <!-- Gold bell -->
+  <circle cx="256" cy="428" r="26" fill="#D4A017"/>
+  <circle cx="256" cy="428" r="17" fill="#F5C842"/>
+  <circle cx="256" cy="428" r="7" fill="rgba(160,120,10,.6)"/>
+
+  <!-- 招财 text on forehead -->
+  <text x="256" y="210" text-anchor="middle" font-size="34" fill="rgba(200,17,42,.55)" font-family="serif" font-weight="bold">招财</text>
+</svg>

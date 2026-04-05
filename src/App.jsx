@@ -46,8 +46,35 @@ const TH = {
 };
 
 // ── PROBABILITY ENGINE ───────────────────────────────
-const TW={1:85,2:72,3:91,4:88,5:76,6:95,7:82,8:103,9:79,10:88,11:91,12:86,13:74,14:93,15:88,16:82,17:97,18:85,19:78,20:91,21:88,22:95,23:103,24:86,25:79,26:91,27:88,28:76,29:95,30:82,31:88,32:91,33:85,34:78,35:93,36:88,37:82,38:97,39:85,40:78,41:91,42:88,43:76,44:93,45:88,46:82,47:97,48:85,49:78};
-const DW=[{0:8,1:11,2:10,3:9,4:10,5:11,6:10,7:12,8:13,9:11},{0:10,1:10,2:11,3:10,4:9,5:12,6:11,7:10,8:11,9:10},{0:9,1:11,2:10,3:11,4:10,5:10,6:12,7:11,8:10,9:10},{0:11,1:10,2:10,3:9,4:11,5:10,6:10,7:12,8:11,9:10}];
+// Seeded weights (fallback) — replaced by Supabase data on load
+let TW={1:85,2:72,3:91,4:88,5:76,6:95,7:82,8:103,9:79,10:88,11:91,12:86,13:74,14:93,15:88,16:82,17:97,18:85,19:78,20:91,21:88,22:95,23:103,24:86,25:79,26:91,27:88,28:76,29:95,30:82,31:88,32:91,33:85,34:78,35:93,36:88,37:82,38:97,39:85,40:78,41:91,42:88,43:76,44:93,45:88,46:82,47:97,48:85,49:78};
+let DW=[{0:8,1:11,2:10,3:9,4:10,5:11,6:10,7:12,8:13,9:11},{0:10,1:10,2:11,3:10,4:9,5:12,6:11,7:10,8:11,9:10},{0:9,1:11,2:10,3:11,4:10,5:10,6:12,7:11,8:10,9:10},{0:11,1:10,2:10,3:9,4:11,5:10,6:10,7:12,8:11,9:10}];
+
+async function loadWeights() {
+  try {
+    const hdrs={apikey:SUPA_KEY,Authorization:`Bearer ${SUPA_KEY}`};
+    const [tr,dr]=await Promise.all([
+      fetch(`${SUPA_URL}/rest/v1/toto_weights?select=number,frequency&order=number.asc`,{headers:hdrs}),
+      fetch(`${SUPA_URL}/rest/v1/4d_digit_weights?select=position,digit,frequency`,{headers:hdrs}),
+    ]);
+    const [tData,dData]=await Promise.all([tr.json(),dr.json()]);
+    if(Array.isArray(tData)&&tData.length===49){
+      const nw={};
+      tData.forEach(r=>{nw[r.number]=Math.max(r.frequency,1);});
+      TW=nw;
+      console.log("Live TOTO weights loaded from Supabase");
+    }
+    if(Array.isArray(dData)&&dData.length===40){
+      const nw=[{},{},{},{}];
+      dData.forEach(r=>{nw[r.position][r.digit]=Math.max(r.frequency,1);});
+      DW=nw;
+      console.log("Live 4D weights loaded from Supabase");
+    }
+  } catch(e){
+    console.log("Using fallback weights:",e.message);
+  }
+}
+
 function wPick(w){const e=Object.entries(w),tot=e.reduce((s,[,v])=>s+v,0);let r=Math.random()*tot;for(const[k,v]of e){r-=v;if(r<=0)return+k;}return+e[e.length-1][0];}
 function genTOTO(){const s=new Set();while(s.size<6)s.add(wPick(TW));return[...s].sort((a,b)=>a-b);}
 function gen4D(){return DW.map(w=>wPick(w));}
@@ -808,7 +835,10 @@ export default function App() {
   const [locked,setLocked]=useState([]);
   const [result,setResult]=useState(null);
   const tids=useRef([]);
-  useEffect(()=>{injectGlobals();},[]);
+  useEffect(()=>{
+    injectGlobals();
+    loadWeights(); // Load real draw weights from Supabase
+  },[]);
   const t=TH[mode];
 
   function clearTids(){tids.current.forEach(clearTimeout);tids.current=[];}
