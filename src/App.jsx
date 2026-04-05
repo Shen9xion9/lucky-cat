@@ -14,7 +14,7 @@ function injectGlobals() {
     @keyframes catIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
     @keyframes catBounce{0%,100%{transform:translateY(0)}45%{transform:translateY(-16px)}75%{transform:translateY(-8px)}}
     @keyframes catHappy{0%,100%{transform:rotate(0) translateY(0)}30%{transform:rotate(-5deg) translateY(-12px)}70%{transform:rotate(5deg) translateY(-12px)}}
-    @keyframes shimmerGold{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    @keyframes shimmerGold{0%,100%{color:#C8112A}50%{color:#D4A017}}
     @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
     @keyframes lockIn{0%{transform:scale(1.7)}60%{transform:scale(.92)}100%{transform:scale(1)}}
     @keyframes bellSwing{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(15deg)}}
@@ -268,7 +268,7 @@ function SpinTab({ mode, setMode, theme, phase, spin, pending, locked, result })
       {/* Header */}
       <div style={{textAlign:"center",marginBottom:10}}>
         <div style={{fontFamily:"'Noto Serif SC',serif",fontSize:11,letterSpacing:6,color:t.p,marginBottom:4,transition:"color .5s"}}>{t.zh}</div>
-        <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:30,fontWeight:900,background:`linear-gradient(135deg,${t.p},${t.gold},${t.p})`,backgroundSize:"200%",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",animation:"shimmerGold 4s linear infinite",transition:"all .5s"}}>Lucky Cat</h1>
+        <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:30,fontWeight:900,color:t.p,animation:"shimmerGold 3s ease-in-out infinite",transition:"color .5s"}}>Lucky Cat</h1>
       </div>
       {/* Mode toggle */}
       <div style={{display:"flex",background:t.toggleBg,borderRadius:50,padding:4,marginBottom:14,border:`1.5px solid ${t.p}28`,transition:"all .5s"}}>
@@ -337,7 +337,7 @@ function ResultsTab({ theme }) {
   return(
     <div style={{padding:"16px 16px 90px",maxWidth:440,margin:"0 auto"}}>
       <div style={{textAlign:"center",marginBottom:14}}>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:22,fontWeight:900,color:t.p}}>Latest Results</div>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:22,fontWeight:900,color:t.p,animation:"shimmerGold 3s ease-in-out infinite"}}>Latest Results</div>
         <div style={{fontFamily:"'Noto Serif SC',serif",fontSize:10,color:t.muted,marginTop:2,letterSpacing:2}}>最新开奖结果</div>
       </div>
       {/* Tab toggle */}
