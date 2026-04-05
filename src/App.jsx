@@ -347,42 +347,57 @@ function SpinTab({ mode, setMode, theme, phase, spin, pending, locked, result })
 // ── RESULTS TAB ──────────────────────────────────────
 function ResultsTab({ theme }) {
   const [rMode,setRMode]=useState("toto");
-  const [myInput,setMyInput]=useState("");
-  const [matched,setMatched]=useState(null);
-  const [data,setData]=useState(FALLBACK[rMode]);
+  const [data,setData]=useState(FALLBACK["toto"]);
   const [loading,setLoading]=useState(true);
+  const [selNums,setSelNums]=useState([]);
+  const [digits,setDigits]=useState([]);
+  const [matched,setMatched]=useState(null);
   const t=theme;
 
   useEffect(()=>{
-    setLoading(true);
-    setData(FALLBACK[rMode]);
-    const fn = rMode==="toto" ? fetchLatestTOTO : fetchLatest4D;
-    fn().then(result=>{
-      if(result) setData(result);
-      setLoading(false);
-    });
+    setLoading(true);setData(FALLBACK[rMode]);setMatched(null);setSelNums([]);setDigits([]);
+    const fn=rMode==="toto"?fetchLatestTOTO:fetchLatest4D;
+    fn().then(r=>{if(r)setData(r);setLoading(false);});
   },[rMode]);
 
-  function check() {
+  function toggleNum(n){
     setMatched(null);
-    if(!myInput.trim())return;
+    setSelNums(p=>p.includes(n)?p.filter(x=>x!==n):p.length<6?[...p,n]:p);
+  }
+  function tapDigit(d){setMatched(null);setDigits(p=>p.length<4?[...p,d]:p);}
+  function backspace(){setMatched(null);setDigits(p=>p.slice(0,-1));}
+  function clearAll(){setMatched(null);setDigits([]);setSelNums([]);}
+
+  function getGroup(hits,bonus){
+    if(hits===6)return 1;if(hits===5&&bonus)return 2;if(hits===5)return 3;
+    if(hits===4&&bonus)return 4;if(hits===4)return 5;if(hits===3&&bonus)return 6;
+    if(hits===3)return 7;return null;
+  }
+  const TOTO_PRIZE={1:"Jackpot — split among winners",2:"~Varies (8% of pool)",3:"~Varies (5.5% of pool)",4:"~Varies (3% of pool)",5:"$50 fixed",6:"$25 fixed",7:"$10 fixed"};
+  const FOURD={first:{label:"1st Prize",big:"$2,000",small:"$3,000"},second:{label:"2nd Prize",big:"$1,000",small:"$2,000"},third:{label:"3rd Prize",big:"$490",small:"$800"},special:{label:"Special Prize",big:"$250",small:"—"},consolation:{label:"Consolation",big:"$60",small:"—"}};
+
+  function check(){
     if(rMode==="toto"){
-      const mine=myInput.split(/[\s,]+/).map(n=>parseInt(n)).filter(n=>n>=1&&n<=49);
-      const mainHits=mine.filter(n=>data.numbers.includes(n)).length;
-      const bonusHit=mine.includes(data.additional);
-      const result={mainHits,bonusHit,win:mainHits>=3};
-      setMatched(result);
-      if(result.win)triggerConfetti();
+      if(!selNums.length)return;
+      const hits=selNums.filter(n=>data.numbers?.includes(n)).length;
+      const bonus=selNums.includes(data.additional);
+      const group=getGroup(hits,bonus);
+      const win=hits>=3;
+      setMatched({hits,bonus,group,prize:TOTO_PRIZE[group],win});
+      if(win)triggerConfetti();
     } else {
-      const num=myInput.replace(/\s/g,"").trim();
-      const tier=num===data.first?"1st Prize 🏆":num===data.second?"2nd Prize 🥈":num===data.third?"3rd Prize 🥉":data.special.includes(num)?"Special Prize ⭐":data.consolation.includes(num)?"Consolation Prize 🎖️":null;
+      if(digits.length<4)return;
+      const num=digits.join("");
+      const tier=num===data.first?"first":num===data.second?"second":num===data.third?"third":data.special?.includes(num)?"special":data.consolation?.includes(num)?"consolation":null;
       setMatched({num,tier,win:!!tier});
       if(tier)triggerConfetti();
     }
   }
 
-  const ResultBall=({n,highlight})=>(
-    <div style={{width:42,height:42,borderRadius:"50%",background:highlight?`radial-gradient(circle at 35% 30%,${t.gold},#A07810)`:"linear-gradient(135deg,#E0E0E0,#A0A0A0)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'DM Mono',monospace",fontSize:13,fontWeight:"500",color:highlight?"#3D2000":"#444",boxShadow:highlight?`0 4px 12px ${t.gold}50`:"0 2px 6px rgba(0,0,0,.15)",transition:"all .3s"}}>
+  const canCheck=rMode==="toto"?selNums.length>0:digits.length===4;
+
+  const RBall=({n,hi})=>(
+    <div style={{width:38,height:38,borderRadius:"50%",background:hi?`radial-gradient(circle at 35% 30%,${t.gold},#A07810)`:"linear-gradient(135deg,#E0E0E0,#B0B0B0)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'DM Mono',monospace",fontSize:12,fontWeight:"500",color:hi?"#3D2000":"#555",flexShrink:0}}>
       {String(n).padStart(2,"0")}
     </div>
   );
@@ -393,68 +408,158 @@ function ResultsTab({ theme }) {
         <div style={{fontFamily:"'Playfair Display',serif",fontSize:22,fontWeight:900,color:t.p,animation:"shimmerGold 3s ease-in-out infinite"}}>Latest Results</div>
         <div style={{fontFamily:"'Noto Serif SC',serif",fontSize:10,color:t.muted,marginTop:2,letterSpacing:2}}>最新开奖结果</div>
       </div>
-      {/* Tab toggle */}
+
+      {/* Mode toggle */}
       <div style={{display:"flex",background:t.toggleBg,borderRadius:50,padding:3,marginBottom:14,border:`1px solid ${t.p}20`}}>
-        {["toto","4d"].map(m=>(<button key={m} onClick={()=>{setRMode(m);setMatched(null);setMyInput("");setData(FALLBACK[m]);}} style={{flex:1,padding:"8px",borderRadius:50,border:"none",background:rMode===m?`linear-gradient(135deg,${TH[m].p},${TH[m].p2})`:"transparent",color:rMode===m?"white":t.muted,fontFamily:"'DM Mono',monospace",fontSize:12,cursor:"pointer",transition:"all .35s",fontWeight:"500"}}>{TH[m].label}</button>))}
+        {["toto","4d"].map(m=>(<button key={m} onClick={()=>setRMode(m)} style={{flex:1,padding:"8px",borderRadius:50,border:"none",background:rMode===m?`linear-gradient(135deg,${TH[m].p},${TH[m].p2})`:"transparent",color:rMode===m?"white":t.muted,fontFamily:"'DM Mono',monospace",fontSize:12,cursor:"pointer",transition:"all .3s",fontWeight:"500"}}>{TH[m].label}</button>))}
       </div>
-      {/* Result card */}
+
+      {/* Latest result card */}
       <div style={{background:t.card,border:`1.5px solid ${t.gold}44`,borderRadius:16,padding:16,marginBottom:14,boxShadow:`0 4px 18px ${t.gold}22`}}>
-        {loading && <div style={{textAlign:"center",fontFamily:"'DM Mono',monospace",fontSize:11,color:t.muted,padding:"8px 0",letterSpacing:1}}>Loading latest results...</div>}
-        {!loading && <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>
-          <span style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:t.muted}}>Draw #{data.draw}</span>
-          <span style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:t.muted}}>{data.date}</span>
-        </div>}
+        {loading&&<div style={{textAlign:"center",fontFamily:"'DM Mono',monospace",fontSize:11,color:t.muted,padding:"8px 0",letterSpacing:1}}>Loading results...</div>}
+        {!loading&&(
+          <>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>
+              <span style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:t.muted}}>Draw #{data.draw}</span>
+              <span style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:t.muted}}>{data.date}</span>
+            </div>
+            {rMode==="toto"?(
+              <>
+                <div style={{display:"flex",gap:6,flexWrap:"wrap",justifyContent:"center",marginBottom:8}}>
+                  {data.numbers?.map((n,i)=>(<RBall key={i} n={n} hi={true}/>))}
+                  {data.additional&&<div style={{width:38,height:38,borderRadius:"50%",background:"linear-gradient(135deg,#888,#555)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'DM Mono',monospace",fontSize:12,fontWeight:"500",color:"white"}}>{String(data.additional).padStart(2,"0")}</div>}
+                </div>
+                <div style={{textAlign:"center",fontFamily:"'DM Mono',monospace",fontSize:11,color:t.muted}}>Jackpot: <span style={{color:t.p,fontWeight:"500"}}>{data.jackpot}</span></div>
+              </>
+            ):(
+              <div style={{fontFamily:"'DM Mono',monospace"}}>
+                {[["1st Prize","first","#D4A017"],["2nd Prize","second","#909090"],["3rd Prize","third","#A05020"]].map(([lbl,key,col])=>(
+                  <div key={lbl} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:`1px solid ${t.border}`}}>
+                    <span style={{fontSize:11,color:t.muted}}>{lbl}</span>
+                    <span style={{fontSize:22,fontWeight:"500",color:col}}>{data[key]}</span>
+                  </div>
+                ))}
+                <div style={{marginTop:10}}>
+                  <div style={{fontSize:10,color:t.muted,marginBottom:5}}>Special Prizes</div>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
+                    {data.special?.map((n,i)=>(<span key={i} style={{fontFamily:"'DM Mono',monospace",fontSize:11,background:`${t.p}14`,color:t.p,padding:"3px 9px",borderRadius:20,border:`1px solid ${t.p}22`}}>{n}</span>))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Number picker */}
+      <div style={{background:t.card,border:`1px solid ${t.border}`,borderRadius:14,padding:14}}>
+        <div style={{fontFamily:"'Playfair Display',serif",fontSize:15,color:t.p,marginBottom:2}}>Check My Numbers</div>
+        <div style={{fontFamily:"'Noto Serif SC',serif",fontSize:9,color:t.muted,marginBottom:12,letterSpacing:1}}>核对我的号码</div>
+
         {rMode==="toto"?(
           <>
-            <div style={{display:"flex",gap:6,flexWrap:"wrap",justifyContent:"center",marginBottom:8}}>
-              {data.numbers.map((n,i)=>(<ResultBall key={i} n={n} highlight={true}/>))}
-              <div style={{width:42,height:42,borderRadius:"50%",background:"linear-gradient(135deg,#888,#555)",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'DM Mono',monospace",fontSize:13,fontWeight:"500",color:"white"}}>{String(data.additional).padStart(2,"0")}</div>
+            <div style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:t.muted,marginBottom:8}}>
+              Tap your numbers below — <span style={{color:t.p,fontWeight:"500"}}>{selNums.length}/6</span> selected
             </div>
-            <div style={{textAlign:"center",fontFamily:"'DM Mono',monospace",fontSize:11,color:t.muted}}>Jackpot: <span style={{color:t.p,fontWeight:"500"}}>{data.jackpot}</span></div>
+            {/* Number grid */}
+            <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:3,marginBottom:10}}>
+              {Array.from({length:49},(_,i)=>i+1).map(n=>{
+                const isSel=selNums.includes(n);
+                const isWin=data.numbers?.includes(n);
+                const isAdd=n===data.additional;
+                return(
+                  <button key={n} onClick={()=>toggleNum(n)} style={{
+                    aspectRatio:"1",borderRadius:"50%",border:"none",cursor:"pointer",fontSize:9,
+                    fontFamily:"'DM Mono',monospace",fontWeight:isSel?"500":"400",
+                    transition:"all .15s",
+                    background:isSel&&isWin?t.gold:isSel?t.p:isWin?`${t.gold}33`:isAdd?"rgba(128,128,128,.15)":`${t.p}0E`,
+                    color:isSel?"white":isWin?"#7A5000":isAdd?"#888":t.muted,
+                    outline:isWin?`2px solid ${t.gold}`:isAdd?"2px solid #aaa":"none",
+                    outlineOffset:1,
+                  }}>
+                    {String(n).padStart(2,"0")}
+                  </button>
+                );
+              })}
+            </div>
+            {/* Selected balls row */}
+            {selNums.length>0&&(
+              <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:10,padding:"8px",background:`${t.p}08`,borderRadius:10}}>
+                {[...selNums].sort((a,b)=>a-b).map(n=>(
+                  <div key={n} style={{width:32,height:32,borderRadius:"50%",background:`radial-gradient(circle at 35% 30%,${t.gold},#A07810)`,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'DM Mono',monospace",fontSize:10,color:"#3D2000",fontWeight:"500"}}>
+                    {String(n).padStart(2,"0")}
+                  </div>
+                ))}
+                <button onClick={clearAll} style={{width:32,height:32,borderRadius:"50%",background:`${t.p}18`,border:`1px solid ${t.p}44`,color:t.p,fontSize:10,cursor:"pointer",fontFamily:"'DM Mono',monospace"}}>CLR</button>
+              </div>
+            )}
           </>
         ):(
-          <div style={{fontFamily:"'DM Mono',monospace"}}>
-            {[["1st Prize","first","#D4A017"],["2nd Prize","second","#909090"],["3rd Prize","third","#A05020"]].map(([lbl,key,col])=>(
-              <div key={lbl} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:`1px solid ${t.border}`}}>
-                <span style={{fontSize:11,color:t.muted}}>{lbl}</span>
-                <span style={{fontSize:22,fontWeight:"500",color:col,fontFamily:"'DM Mono',monospace"}}>{data[key]}</span>
-              </div>
-            ))}
-            <div style={{marginTop:10}}>
-              <div style={{fontSize:10,color:t.muted,marginBottom:5,fontFamily:"'DM Mono',monospace"}}>Special Prizes</div>
-              <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
-                {data.special.map((n,i)=>(<span key={i} style={{fontFamily:"'DM Mono',monospace",fontSize:11,background:`${t.p}14`,color:t.p,padding:"3px 9px",borderRadius:20,border:`1px solid ${t.p}22`}}>{n}</span>))}
-              </div>
+          <>
+            {/* 4D slots */}
+            <div style={{display:"flex",gap:10,justifyContent:"center",marginBottom:14}}>
+              {[0,1,2,3].map(i=>(
+                <div key={i} style={{width:60,height:70,borderRadius:12,background:digits[i]!==undefined?`${t.p}18`:`${t.p}08`,border:`2px solid ${digits[i]!==undefined?t.p:t.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'DM Mono',monospace",fontSize:32,fontWeight:"500",color:digits[i]!==undefined?t.p:"rgba(0,0,0,.15)",transition:"all .2s"}}>
+                  {digits[i]!==undefined?digits[i]:"_"}
+                </div>
+              ))}
             </div>
-          </div>
+            {/* Numpad */}
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,maxWidth:220,margin:"0 auto 12px"}}>
+              {[1,2,3,4,5,6,7,8,9].map(d=>(
+                <button key={d} onClick={()=>tapDigit(String(d))} style={{padding:"14px 0",borderRadius:12,border:`1px solid ${t.border}`,background:t.card,color:t.text,fontFamily:"'DM Mono',monospace",fontSize:22,cursor:"pointer",transition:"background .1s",fontWeight:"500"}}>
+                  {d}
+                </button>
+              ))}
+              <button onClick={clearAll} style={{padding:"14px 0",borderRadius:12,border:`1px solid ${t.p}44`,background:`${t.p}12`,color:t.p,fontFamily:"'DM Mono',monospace",fontSize:12,cursor:"pointer",letterSpacing:.5}}>CLR</button>
+              <button onClick={()=>tapDigit("0")} style={{padding:"14px 0",borderRadius:12,border:`1px solid ${t.border}`,background:t.card,color:t.text,fontFamily:"'DM Mono',monospace",fontSize:22,cursor:"pointer",fontWeight:"500"}}>0</button>
+              <button onClick={backspace} style={{padding:"14px 0",borderRadius:12,border:`1px solid ${t.p}44`,background:`${t.p}12`,color:t.p,fontFamily:"'DM Mono',monospace",fontSize:20,cursor:"pointer"}}>⌫</button>
+            </div>
+          </>
         )}
-      </div>
-      {/* Compare */}
-      <div style={{background:t.card,border:`1px solid ${t.border}`,borderRadius:14,padding:14}}>
-        <div style={{fontFamily:"'Playfair Display',serif",fontSize:15,color:t.p,marginBottom:6}}>Check My Numbers</div>
-        <div style={{fontFamily:"'Noto Serif SC',serif",fontSize:9,color:t.muted,marginBottom:10,letterSpacing:1}}>核对我的号码</div>
-        <input value={myInput} onChange={e=>setMyInput(e.target.value)}
-          onKeyDown={e=>e.key==="Enter"&&check()}
-          placeholder={rMode==="toto"?"Enter numbers e.g: 4 12 23 31 38 45":"Enter 4D number e.g: 4829"}
-          style={{width:"100%",padding:"11px 14px",border:`1.5px solid ${t.border}`,borderRadius:10,fontFamily:"'DM Mono',monospace",fontSize:13,background:"transparent",color:t.text,outline:"none",marginBottom:10,letterSpacing:1}}
-        />
-        <button onClick={check} style={{width:"100%",padding:"11px",background:`linear-gradient(135deg,${t.p},${t.p2})`,border:"none",borderRadius:10,color:"white",fontFamily:"'DM Mono',monospace",fontSize:13,cursor:"pointer",letterSpacing:2,fontWeight:"500"}}>
+
+        {/* Check button */}
+        <button onClick={check} disabled={!canCheck} style={{width:"100%",padding:"12px",background:canCheck?`linear-gradient(135deg,${t.p},${t.p2})`:`${t.p}1A`,border:"none",borderRadius:10,color:canCheck?"white":t.muted,fontFamily:"'DM Mono',monospace",fontSize:13,cursor:canCheck?"pointer":"not-allowed",letterSpacing:2,fontWeight:"500",transition:"all .3s",marginTop:4}}>
           CHECK ✓
         </button>
+
+        {/* Match result */}
         {matched&&(
-          <div style={{marginTop:12,padding:14,background:matched.win?`${t.p}14`:`${t.gold}10`,borderRadius:12,textAlign:"center",animation:matched.win?"winPop .4s ease-out":"fadeUp .3s ease-out"}}>
-            <div style={{fontFamily:"'Playfair Display',serif",fontSize:matched.win?22:16,color:matched.win?t.p:t.muted,fontWeight:matched.win?900:400,marginBottom:matched.win?6:0}}>
-              {rMode==="4d"
-                ?matched.win?`🎉 ${matched.tier}!`:"😔 Not this time. Try again next draw!"
-                :matched.win?`🎉 ${matched.mainHits} numbers matched!${matched.bonusHit?" + Bonus number!":""}`:`${matched.mainHits||0} number${matched.mainHits===1?"":"s"} matched — not a winner this draw`
-              }
-            </div>
-            {matched.win&&<div style={{fontFamily:"'Noto Serif SC',serif",fontSize:11,color:t.muted,marginBottom:8}}>恭喜你！ Share your win!</div>}
-            {matched.win&&<ShareButtons numbers={rMode==="4d"?[matched.num||myInput]:[myInput]} mode={rMode} theme={t}/>}
+          <div style={{marginTop:12,padding:14,background:matched.win?`${t.p}12`:`${t.gold}0C`,borderRadius:12,animation:matched.win?"winPop .4s ease-out":"fadeUp .3s ease-out"}}>
+            {rMode==="4d"?matched.win?(
+              <>
+                <div style={{fontFamily:"'Playfair Display',serif",fontSize:20,color:t.p,fontWeight:900,textAlign:"center",marginBottom:10}}>🎉 {FOURD[matched.tier]?.label}!</div>
+                <div style={{display:"flex",justifyContent:"space-around",marginBottom:10}}>
+                  <div style={{textAlign:"center"}}>
+                    <div style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:t.muted,marginBottom:3}}>BIG BET / $1</div>
+                    <div style={{fontFamily:"'DM Mono',monospace",fontSize:22,color:t.p,fontWeight:"500"}}>{FOURD[matched.tier]?.big}</div>
+                  </div>
+                  {FOURD[matched.tier]?.small!=="—"&&(
+                    <div style={{textAlign:"center"}}>
+                      <div style={{fontFamily:"'DM Mono',monospace",fontSize:9,color:t.muted,marginBottom:3}}>SMALL BET / $1</div>
+                      <div style={{fontFamily:"'DM Mono',monospace",fontSize:22,color:t.p,fontWeight:"500"}}>{FOURD[matched.tier]?.small}</div>
+                    </div>
+                  )}
+                </div>
+                <ShareButtons numbers={[matched.num]} mode="4d" theme={t}/>
+              </>
+            ):<div style={{fontFamily:"'DM Mono',monospace",fontSize:13,color:t.muted,textAlign:"center"}}>😔 Not a winner this draw. Try again!</div>
+            :matched.win?(
+              <>
+                <div style={{fontFamily:"'Playfair Display',serif",fontSize:20,color:t.p,fontWeight:900,textAlign:"center",marginBottom:6}}>🎉 Group {matched.group} Winner!</div>
+                <div style={{textAlign:"center",fontFamily:"'DM Mono',monospace",fontSize:12,color:t.muted,marginBottom:6}}>
+                  {matched.hits} number{matched.hits!==1?"s":""} matched{matched.bonus?" + additional number":""}
+                </div>
+                <div style={{textAlign:"center",fontFamily:"'DM Mono',monospace",fontSize:16,color:t.p,fontWeight:"500",marginBottom:4}}>
+                  {matched.prize}
+                </div>
+                {matched.group<=4&&<div style={{textAlign:"center",fontFamily:"'DM Mono',monospace",fontSize:9,color:t.muted,marginBottom:8}}>Exact amount split among all Group {matched.group} winners</div>}
+                <ShareButtons numbers={selNums} mode="toto" theme={t}/>
+              </>
+            ):<div style={{fontFamily:"'DM Mono',monospace",fontSize:13,color:t.muted,textAlign:"center"}}>{matched.hits||0} number{matched.hits===1?"":"s"} matched — not a winner this draw</div>}
           </div>
         )}
       </div>
-      <div style={{marginTop:12,textAlign:"center",fontFamily:"'DM Mono',monospace",fontSize:9,color:t.muted,lineHeight:1.8}}>Results updated automatically after each draw.<br/>Data from Singapore Pools.</div>
     </div>
   );
 }
