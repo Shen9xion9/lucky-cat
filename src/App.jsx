@@ -53,11 +53,52 @@ function genTOTO(){const s=new Set();while(s.size<6)s.add(wPick(TW));return[...s
 function gen4D(){return DW.map(w=>wPick(w));}
 
 // ── LATEST RESULTS (scraper updates these) ───────────
-const LATEST = {
-  toto:{ date:"03 Apr 2026 (Thu)", draw:4120, numbers:[4,12,23,31,38,45], additional:7, jackpot:"$2,100,000" },
-  "4d":{ date:"02 Apr 2026 (Wed)", draw:5312, first:"4829", second:"1073", third:"6651",
-    special:["0234","1892","3047","4521","5683","6714","7089","8342","9456","0871"],
-    consolation:["1234","2345","3456","4567","5678","6789","7890","8901","9012","0123"] },
+// ── SUPABASE CONFIG ───────────────────────────────────
+const SUPA_URL = "https://zctrxistatxvenkcwjpv.supabase.co";
+const SUPA_KEY = "sb_publishable_u0XQ6twMGQ20IsQCe7oRMQ_9K5OENqV";
+
+async function fetchLatestTOTO() {
+  try {
+    const r = await fetch(`${SUPA_URL}/rest/v1/toto_results?order=draw_no.desc&limit=1`, {
+      headers:{ apikey:SUPA_KEY, Authorization:`Bearer ${SUPA_KEY}` }
+    });
+    const d = await r.json();
+    if (!d || !d[0] || !d[0].num1) return null;
+    const row = d[0];
+    return {
+      date: row.draw_date || "—",
+      draw: row.draw_no,
+      numbers: [row.num1,row.num2,row.num3,row.num4,row.num5,row.num6].filter(Boolean),
+      additional: row.additional,
+      jackpot: row.jackpot || "—",
+    };
+  } catch(e) { return null; }
+}
+
+async function fetchLatest4D() {
+  try {
+    const r = await fetch(`${SUPA_URL}/rest/v1/4d_results?order=draw_no.desc&limit=1`, {
+      headers:{ apikey:SUPA_KEY, Authorization:`Bearer ${SUPA_KEY}` }
+    });
+    const d = await r.json();
+    if (!d || !d[0] || !d[0].first) return null;
+    const row = d[0];
+    const parse = (v) => { try { return typeof v==="string"?JSON.parse(v):v||[]; } catch{ return []; }};
+    return {
+      date: row.draw_date || "—",
+      draw: row.draw_no,
+      first: row.first,
+      second: row.second,
+      third: row.third,
+      special: parse(row.special),
+      consolation: parse(row.consolation),
+    };
+  } catch(e) { return null; }
+}
+
+const FALLBACK = {
+  toto:{ date:"—", draw:"—", numbers:[], additional:null, jackpot:"—" },
+  "4d":{ date:"—", draw:"—", first:"—", second:"—", third:"—", special:[], consolation:[] },
 };
 
 // ── CONFETTI ─────────────────────────────────────────
@@ -308,7 +349,19 @@ function ResultsTab({ theme }) {
   const [rMode,setRMode]=useState("toto");
   const [myInput,setMyInput]=useState("");
   const [matched,setMatched]=useState(null);
-  const t=theme, data=LATEST[rMode];
+  const [data,setData]=useState(FALLBACK[rMode]);
+  const [loading,setLoading]=useState(true);
+  const t=theme;
+
+  useEffect(()=>{
+    setLoading(true);
+    setData(FALLBACK[rMode]);
+    const fn = rMode==="toto" ? fetchLatestTOTO : fetchLatest4D;
+    fn().then(result=>{
+      if(result) setData(result);
+      setLoading(false);
+    });
+  },[rMode]);
 
   function check() {
     setMatched(null);
@@ -342,14 +395,15 @@ function ResultsTab({ theme }) {
       </div>
       {/* Tab toggle */}
       <div style={{display:"flex",background:t.toggleBg,borderRadius:50,padding:3,marginBottom:14,border:`1px solid ${t.p}20`}}>
-        {["toto","4d"].map(m=>(<button key={m} onClick={()=>{setRMode(m);setMatched(null);setMyInput("");}} style={{flex:1,padding:"8px",borderRadius:50,border:"none",background:rMode===m?`linear-gradient(135deg,${TH[m].p},${TH[m].p2})`:"transparent",color:rMode===m?"white":t.muted,fontFamily:"'DM Mono',monospace",fontSize:12,cursor:"pointer",transition:"all .35s",fontWeight:"500"}}>{TH[m].label}</button>))}
+        {["toto","4d"].map(m=>(<button key={m} onClick={()=>{setRMode(m);setMatched(null);setMyInput("");setData(FALLBACK[m]);}} style={{flex:1,padding:"8px",borderRadius:50,border:"none",background:rMode===m?`linear-gradient(135deg,${TH[m].p},${TH[m].p2})`:"transparent",color:rMode===m?"white":t.muted,fontFamily:"'DM Mono',monospace",fontSize:12,cursor:"pointer",transition:"all .35s",fontWeight:"500"}}>{TH[m].label}</button>))}
       </div>
       {/* Result card */}
       <div style={{background:t.card,border:`1.5px solid ${t.gold}44`,borderRadius:16,padding:16,marginBottom:14,boxShadow:`0 4px 18px ${t.gold}22`}}>
-        <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>
+        {loading && <div style={{textAlign:"center",fontFamily:"'DM Mono',monospace",fontSize:11,color:t.muted,padding:"8px 0",letterSpacing:1}}>Loading latest results...</div>}
+        {!loading && <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>
           <span style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:t.muted}}>Draw #{data.draw}</span>
           <span style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:t.muted}}>{data.date}</span>
-        </div>
+        </div>}
         {rMode==="toto"?(
           <>
             <div style={{display:"flex",gap:6,flexWrap:"wrap",justifyContent:"center",marginBottom:8}}>
